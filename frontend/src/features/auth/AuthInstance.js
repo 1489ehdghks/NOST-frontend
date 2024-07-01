@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import useAuthStore from '../../shared/store/AuthStore';
-import config from '../../shared/utils/Config';
+import config from '../../shared/utils/config';
 
 // Axios 인스턴스 생성
 const axiosInstance = axios.create({
@@ -38,7 +38,7 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true;
 
             try {
-                const response = await axios.post('https://nost-stella.com/api/accounts/token/refresh/', { refresh: refreshToken });
+                const response = await axios.post(`${config.baseURL}/api/accounts/token/refresh/`, { refresh: refreshToken });
                 const newAccessToken = response.data.access;
                 const newRefreshToken = response.data.refresh;
                 const user = jwtDecode(newAccessToken);
