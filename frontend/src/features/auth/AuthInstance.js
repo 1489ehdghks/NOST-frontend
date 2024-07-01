@@ -1,9 +1,11 @@
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 import useAuthStore from '../../shared/store/AuthStore';
+import config from '../../shared/utils/Config';
 
 // Axios 인스턴스 생성
 const axiosInstance = axios.create({
-    baseURL: 'https://nost-stella.com',
+    baseURL: 'config.baseURL',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -30,24 +32,18 @@ axiosInstance.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
-        const { refreshToken, setToken, setRefreshToken, logout } = useAuthStore.getState();
+        const { refreshToken, setAuthState, logout } = useAuthStore.getState();
 
-        // 액세스 토큰 만료인 경우 처리
         if (error.response && error.response.status === 401 && !originalRequest._retry && refreshToken) {
             originalRequest._retry = true;
 
-            // 리프레시 토큰으로 새 액세스 토큰을 요청
             try {
                 const response = await axios.post('https://nost-stella.com/api/accounts/token/refresh/', { refresh: refreshToken });
                 const newAccessToken = response.data.access;
                 const newRefreshToken = response.data.refresh;
-                setToken(newAccessToken);
-                setRefreshToken(newRefreshToken);
-
+                const user = jwtDecode(newAccessToken);
+                setAuthState({ token: newAccessToken, refreshToken: newRefreshToken, user });
                 originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-
-
-                // 다시 요청을 보내도록 설정
                 return axiosInstance(originalRequest);
             } catch (refreshError) {
                 logout();

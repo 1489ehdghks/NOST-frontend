@@ -1,0 +1,40 @@
+.homePageFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    background-color: #f8f8f8;
+    border-top: 1px solid #ddd;
+    color: #333;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+
+    .footer-left {
+        text-align: left;
+        padding: 10px;
+
+        p {
+            margin: 5px 0;
+        }
+    }
+
+    .footer-right {
+        display: flex;
+        padding: 10px;
+        gap: 15px;
+
+        a {
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s;
+        }
+        a:hover {
+            transform: scale(1.1);
+        }
+        svg {
+            width: 32px;
+            height: 32px;
+        }
+    }
+}

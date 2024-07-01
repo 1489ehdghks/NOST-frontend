@@ -6,26 +6,13 @@ export const login = async (email, password) => {
     useGlobalStore.getState().setIsLoading(true);
     useGlobalStore.getState().setError(null);
     try {
-        const response = await axiosInstance.post('/api/accounts/login/', {
-            email,
-            password,
-        });
-
+        const response = await axiosInstance.post('/api/accounts/login/', { email, password });
         const data = response.data;
-        console.log("data:", data)
 
-        useAuthStore.getState().setToken(data.access);
-        useAuthStore.getState().setRefreshToken(data.refresh);
-        useAuthStore.getState().setIsLoggedIn(true);
-        useAuthStore.getState().setUserId(data.user.id);
-        useAuthStore.getState().setNickname(data.user.nickname);
-        useAuthStore.getState().setEmail(data.user.email);
-        useAuthStore.getState().setUser({
-            id: data.user.id,
-            name: data.user.name,
-            nickname: data.user.nickname,
-            email: data.user.email,
-            profilePicture: data.user.profile_picture,
+        useAuthStore.getState().setAuthState({
+            token: data.access,
+            refreshToken: data.refresh,
+            user: data.user
         });
     } catch (err) {
         if (err.response && err.response.data) {

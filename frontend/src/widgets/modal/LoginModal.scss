@@ -27,9 +27,11 @@
     align-items: center;
     z-index: 11;
     transition: all 0.3s ease-in-out;
+    width: 720px;
+    height: 220px;
 
     // 3200px 이하
-    @media (max-width: 3200px) {
+    @media (max-width: 3201px) {
       width: 680px;
       height: 200px;
     }
@@ -99,16 +101,15 @@
           font-family: "Montserrat", sans-serif;
           font-weight: 300;
           position: absolute;
+          top: 55px;
           width: 40%;
           transition: transform 0.5s ease-in-out;
         }
         .user_options-unregistered {
           left: 0;
-          transform: translateY(30%);
         }
         .user_options-registered {
           right: 5%;
-          transform: translateY(42%);
         }
       }
     }
@@ -116,6 +117,9 @@
       position: absolute;
       transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 
+      .user_forms-login {
+        margin-top: 1.6rem;
+      }
       .user_forms-login,
       .user_forms-signup {
         width: 100%;
@@ -157,6 +161,7 @@
         }
         .forms_form {
           width: 100%;
+
           .forms_fieldset {
             border: none;
             margin: 0;
@@ -165,6 +170,7 @@
             .forms_field {
               margin-bottom: 1rem;
               background-color: transparent;
+              padding: 0;
               .forms_field-input {
                 width: 90%;
                 padding: 10px;
@@ -183,15 +189,17 @@
           }
 
           .forms_buttons {
-            margin-top: 2rem;
+            margin-top: 1rem;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
 
             .forms_buttons-forgot {
               background: none;
               border: none;
               color: #ff8177;
               cursor: pointer;
+              padding: 5px;
               text-decoration: underline;
             }
 
@@ -215,6 +223,8 @@
       }
       &.show-login {
         background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 3px;
         z-index: 20;
         transform: translateX(120%);
         @media (max-width: 768px) {
@@ -227,6 +237,8 @@
 
       &.show-signup {
         background-color: white;
+        border: 1px solid #ccc;
+        border-radius: 3px;
         z-index: 20;
         transform: translateX(0%);
       }
@@ -234,7 +246,7 @@
       // 기본 크기
       &.show-login,
       &.show-signup {
-        // 3200px 이상
+        // 3201px 이상
         @media (min-width: 3200px) {
           width: 330px;
           height: 480px;

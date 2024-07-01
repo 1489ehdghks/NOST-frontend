@@ -10,17 +10,35 @@ const useAuthStore = create(persist(
         nickname: null,
         email: null,
 
-        setToken: (token) => set({ token }),
-        setRefreshToken: (refreshToken) => set({ refreshToken }),
-        setIsLoggedIn: (isLoggedIn) => set({ isLoggedIn }),
-        setUserId: (userId) => set({ userId }),
-        setNickname: (nickname) => set({ nickname }),
-        setEmail: (email) => set({ email }),
+        setAuthState: ({ token, refreshToken, user }) => set({
+            token,
+            refreshToken,
+            isLoggedIn: true,
+            userId: user.id,
+            nickname: user.nickname,
+            email: user.email,
+            user
+        }),
 
-        logout: () => set({ token: null, refreshToken: null, isLoggedIn: false, userId: null, nickname: null, email: null }),
-        
-        // 상태 초기화 함수 추가
-        reset: () => set({ token: null, refreshToken: null, isLoggedIn: false, userId: null, nickname: null, email: null })
+        logout: () => set({
+            token: null,
+            refreshToken: null,
+            isLoggedIn: false,
+            userId: null,
+            nickname: null,
+            email: null,
+            user: null
+        }),
+
+        reset: () => set({
+            token: null,
+            refreshToken: null,
+            isLoggedIn: false,
+            userId: null,
+            nickname: null,
+            email: null,
+            user: null
+        })
     }),
     {
         name: 'auth_store',

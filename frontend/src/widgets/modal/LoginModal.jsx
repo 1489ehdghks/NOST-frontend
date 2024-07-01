@@ -4,6 +4,7 @@ import { login } from '../../features/auth/LoginInstance';
 import { signup } from '../../features/auth/SignupInstance';
 import useGlobalStore from '../../shared/store/GlobalStore';
 import { ToastContainer, toast } from 'react-toastify';
+import Tooltip from '../tooltip/Tooltip';
 import ResendEmailModal from './ResendEmailModal';
 import 'react-toastify/dist/ReactToastify.css';
 import './LoginModal.scss';
@@ -20,6 +21,25 @@ const LoginModal = ({ onClose }) => {
     const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();
     const [showResendEmailModal, setShowResendEmailModal] = useState(false);
+    const [tooltip, setTooltip] = useState({
+        loginEmail: false,
+        loginPassword: false,
+        signupEmail: false,
+        signupPassword: false,
+    });
+
+    const handleFocus = (field) => {
+        setTooltip({ ...tooltip, [field]: true });
+    };
+
+    const handleBlur = (field) => {
+        setTooltip({ ...tooltip, [field]: false });
+    };
+
+    const handleTooltipClose = (field) => {
+        setTooltip({ ...tooltip, [field]: false });
+    };
+
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -46,7 +66,7 @@ const LoginModal = ({ onClose }) => {
             setShowResendEmailModal(true);
         }
     }, [globalError]);
-    
+
 
 
     const handleLoginInputChange = (event) => {
@@ -78,54 +98,54 @@ const LoginModal = ({ onClose }) => {
         }
     };
 
-const handleSignupSubmit = async (event) => {
-    event.preventDefault();
-    setSignupErrors({});
+    const handleSignupSubmit = async (event) => {
+        event.preventDefault();
+        setSignupErrors({});
 
-    console.log('Signup Inputs:', signupInputs);
+        console.log('Signup Inputs:', signupInputs);
 
-    if (signupInputs.password1 !== signupInputs.password2) {
-        setSignupErrors({ password2: ['Passwords do not match'] });
-        toast.error('Passwords do not match');
-        return;
-    }
-
-    try {
-        const response = await signup(signupInputs.email, signupInputs.password1, signupInputs.password2, signupInputs.nickname);
-
-        console.log('Signup Response:', response);
-
-        if (response.errors) {
-            const errors = {};
-            // 각 에러 메시지를 toast로 표시
-            if (response.errors.email) {
-                errors.email = response.errors.email;
-                response.errors.email.forEach((msg) => toast.error(msg));
-            }
-            if (response.errors.password1) {
-                errors.password1 = response.errors.password1;
-                response.errors.password1.forEach((msg) => toast.error(msg));
-            }
-            if (response.errors.password2) {
-                errors.password2 = response.errors.password2;
-                response.errors.password2.forEach((msg) => toast.error(msg));
-            }
-            setSignupErrors(errors);
+        if (signupInputs.password1 !== signupInputs.password2) {
+            setSignupErrors({ password2: ['Passwords do not match'] });
+            toast.error('Passwords do not match');
+            return;
         }
-        else {
-            setSignupSuccess(true);
-            setLoginFormActive(true);
-        }
-    } catch (error) {
-        console.error('Signup API error:', error);
-        toast.error('An unexpected error occurred. Please try again.');
-    }
 
-    console.log('Global Error:', globalError);
-    if (globalError === null) {
-        toast.error('This is a duplicate nickname. Please fix.');
-    }
-};
+        try {
+            const response = await signup(signupInputs.email, signupInputs.password1, signupInputs.password2, signupInputs.nickname);
+
+            console.log('Signup Response:', response);
+
+            if (response.errors) {
+                const errors = {};
+                // 각 에러 메시지를 toast로 표시
+                if (response.errors.email) {
+                    errors.email = response.errors.email;
+                    response.errors.email.forEach((msg) => toast.error(msg));
+                }
+                if (response.errors.password1) {
+                    errors.password1 = response.errors.password1;
+                    response.errors.password1.forEach((msg) => toast.error(msg));
+                }
+                if (response.errors.password2) {
+                    errors.password2 = response.errors.password2;
+                    response.errors.password2.forEach((msg) => toast.error(msg));
+                }
+                setSignupErrors(errors);
+            }
+            else {
+                setSignupSuccess(true);
+                setLoginFormActive(true);
+            }
+        } catch (error) {
+            console.error('Signup API error:', error);
+            toast.error('An unexpected error occurred. Please try again.');
+        }
+
+        console.log('Global Error:', globalError);
+        if (globalError === null) {
+            toast.error('This is a duplicate nickname. Please fix.');
+        }
+    };
 
 
     return (
@@ -160,7 +180,7 @@ const handleSignupSubmit = async (event) => {
                         <h2 className="forms_title">Login</h2>
                         <form className="forms_form" onSubmit={handleLoginSubmit}>
                             <fieldset className="forms_fieldset">
-                                <div className="forms_field">
+                                <div className="forms_field" style={{ position: 'relative' }}>
                                     <input
                                         type="email"
                                         placeholder="Email"
@@ -170,11 +190,18 @@ const handleSignupSubmit = async (event) => {
                                         name="email"
                                         value={loginInputs.email}
                                         onChange={handleLoginInputChange}
+                                        onFocus={() => handleFocus('loginEmail')}
+                                        onBlur={() => handleBlur('loginEmail')}
                                         disabled={isLoading}
+                                    />
+                                    <Tooltip
+                                        message="Please provide a valid email address for verification."
+                                        isVisible={tooltip.loginEmail}
+                                        onClose={() => handleTooltipClose('loginEmail')}
                                     />
 
                                 </div>
-                                <div className="forms_field">
+                                <div className="forms_field" style={{ position: 'relative' }}>
                                     <input
                                         type="password"
                                         placeholder="Password"
@@ -183,7 +210,14 @@ const handleSignupSubmit = async (event) => {
                                         name="password"
                                         value={loginInputs.password}
                                         onChange={handleLoginInputChange}
+                                        onFocus={() => handleFocus('loginPassword')}
+                                        onBlur={() => handleBlur('loginPassword')}
                                         disabled={isLoading}
+                                    />
+                                    <Tooltip
+                                        message="Password must be at least 8 characters long and contain a mix of letters and numbers."
+                                        isVisible={tooltip.loginPassword}
+                                        onClose={() => handleTooltipClose('loginPassword')}
                                     />
 
                                 </div>
@@ -215,7 +249,7 @@ const handleSignupSubmit = async (event) => {
                         <h2 className="forms_title">Sign Up</h2>
                         <form className="forms_form" onSubmit={handleSignupSubmit}>
                             <fieldset className="forms_fieldset">
-                                <div className="forms_field">
+                                <div className="forms_field" style={{ position: 'relative' }}>
                                     <input
                                         type="text"
                                         placeholder="Nickname"
@@ -228,7 +262,7 @@ const handleSignupSubmit = async (event) => {
                                     />
 
                                 </div>
-                                <div className="forms_field">
+                                <div className="forms_field" style={{ position: 'relative' }}>
                                     <input
                                         type="email"
                                         placeholder="Email"
@@ -237,11 +271,17 @@ const handleSignupSubmit = async (event) => {
                                         name="email"
                                         value={signupInputs.email}
                                         onChange={handleSignupInputChange}
+                                        onFocus={() => handleFocus('signupEmail')}
+                                        onBlur={() => handleBlur('signupEmail')}
                                         disabled={isLoading}
                                     />
-
+                                    <Tooltip
+                                        message="Please provide a valid email address for verification."
+                                        isVisible={tooltip.signupEmail}
+                                        onClose={() => handleTooltipClose('signupEmail')}
+                                    />
                                 </div>
-                                <div className="forms_field">
+                                <div className="forms_field" style={{ position: 'relative' }}>
                                     <input
                                         type="password"
                                         placeholder="Password"
@@ -250,9 +290,15 @@ const handleSignupSubmit = async (event) => {
                                         name="password1"
                                         value={signupInputs.password1}
                                         onChange={handleSignupInputChange}
+                                        onFocus={() => handleFocus('signupPassword')}
+                                        onBlur={() => handleBlur('signupPassword')}
                                         disabled={isLoading}
                                     />
-
+                                    <Tooltip
+                                        message="Password must be at least 8 characters long and contain a mix of letters and numbers."
+                                        isVisible={tooltip.signupPassword}
+                                        onClose={() => handleTooltipClose('signupPassword')}
+                                    />
                                 </div>
                                 <div className="forms_field">
                                     <input

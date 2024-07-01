@@ -1,5 +1,6 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import HomePage from '../pages/home/HomePage';
 import MainPage from '../pages/main/MainPage';
 import useAuthStore from '../shared/store/AuthStore';
@@ -12,6 +13,25 @@ import NotFound from '../pages/NotFound';
 
 const AppRouter = () => {
     const { isLoggedIn } = useAuthStore();
+    const navigate = useNavigate();
+    const { token, logout } = useAuthStore(state => ({ token: state.token, logout: state.logout }));
+
+    useEffect(() => {
+        if (token) {
+            const handleLogout = () => {
+                logout();
+                navigate('/');
+            };
+
+            const decodedToken = jwtDecode(token);
+            const expirationTime = decodedToken.exp * 1000;
+            const timeoutId = setTimeout(handleLogout, expirationTime - Date.now());
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [token, logout, navigate]);
+
+
 
     return (
         <Routes>

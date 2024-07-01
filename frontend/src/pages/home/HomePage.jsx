@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import useThemeStore from '../../shared/store/Themestore';
 import LoginModal from '../../widgets/modal/LoginModal';
 import ThemedButton from '../../widgets/button/ThemedButton';
+import HomePageFooter from '../../widgets/layout/HomePageFooter/HomePageFooter';
 import './HomePage.scss';
 
 const HomePage = () => {
@@ -68,8 +69,11 @@ const HomePage = () => {
             className={`image ${image.loaded ? 'high-quality loaded' : 'low-quality'}`}
           />
         ))}
+
       </div>
+      <HomePageFooter />
     </div>
+
   );
 };
 export default HomePage;
