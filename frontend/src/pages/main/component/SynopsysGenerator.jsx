@@ -4,7 +4,7 @@ import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import useBookStore from '../../../shared/store/BookStore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import useThemeStore from '../../../shared/store/Themestore';
-import axiosInstance from '../../../features/auth/AuthInstance';
+import { generateSynopsis } from '../../../features/novel/SynopsysGeneratorInstance';
 import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
@@ -120,7 +120,7 @@ const SynopsysGenerator = ({ onComplete }) => {
         const fetchSynopsis = async (retries = 0) => {
             try {
                 console.log("Attempting fetchSynopsis, retry:", retries);
-                const response = await axiosInstance.post('https://nost-stella.com/api/books/', requestData);
+                const response = await generateSynopsis(requestData);
                 const content = response.data.content;
 
                 console.log("response received:", response);
@@ -151,7 +151,6 @@ const SynopsysGenerator = ({ onComplete }) => {
                 }
             }
         };
-
         fetchSynopsis();
     };
 

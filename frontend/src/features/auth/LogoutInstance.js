@@ -2,17 +2,8 @@
 import useAuthStore from '../../shared/store/AuthStore';
 
 export const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('nickname');
-    localStorage.removeItem('email');
-    localStorage.removeItem('userId');
-
-
-    //세션 스토리지
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-
+    localStorage.clear();
+    sessionStorage.clear();
 
     //쿠키에서 토큰 삭제
     document.cookie = "accessToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

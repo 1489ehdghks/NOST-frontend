@@ -35,12 +35,12 @@
       border-radius: 5px;
       cursor: pointer;
       width: 100%;
-    
+
       &:hover {
         background-color: #f9f9f9 !important;
       }
     }
-    
+
     input[type="email"] {
       width: 100%;
       padding: 10px;
@@ -49,5 +49,22 @@
       border-radius: 5px;
       box-sizing: border-box;
     }
+  }
+}
+.ResendEmailModalButton {
+  padding: 5px 10px;
+  border-radius: 3px;
+  background-color: white;
+  border: 1px solid #ccc;
+  color: black;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    color: white;
+    background-color: darken(#ff8177, 10%);
+    border: 1px solid transparent;
   }
 }

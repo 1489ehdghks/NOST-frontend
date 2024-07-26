@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useBookStore from '../../shared/store/BookStore';
 import useThemeStore from '../../shared/store/Themestore';
-import axiosInstance from '../../features/auth/AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 import './Mybooklist.scss';
 
 const Card = ({ id, image, header, likes, rating, onClick }) => {

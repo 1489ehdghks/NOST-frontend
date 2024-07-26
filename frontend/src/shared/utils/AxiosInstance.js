@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
-import useAuthStore from '../../shared/store/AuthStore';
-import config from '../../shared/utils/config';
+import useAuthStore from '../store/AuthStore';
+import config from './config';
 
 // Axios 인스턴스 생성
 const axiosInstance = axios.create({
-    baseURL: 'config.baseURL',
+    baseURL: `${config.baseURL}`,
     headers: {
         'Content-Type': 'application/json',
     },

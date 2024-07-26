@@ -1,19 +1,21 @@
 import React from 'react';
 import './Tooltip.scss';
 
-const Tooltip = ({ message, isVisible, onClose }) => {
+const Tooltip = ({ message, isVisible, isValid, onClose }) => {
+    if (!isVisible) return null;
+
     return (
-        isVisible && (
-            <div className="tooltip-container">
-                <div className="tooltip-arrow"></div>
-                <div className="tooltip-content">
-                    <div className="tooltip-header">
-                        <span>{message}</span>
-                        <button onClick={onClose} className="tooltip-close">&times;</button>
-                    </div>
-                </div>
+        <div className="tooltip">
+            <div className="tooltip-content">
+                <span className="tooltip-icon">
+                    {isValid ? '✔️' : '❌'}
+                </span>
+                <span className="tooltip-message">
+                    {message}
+                </span>
             </div>
-        )
+            <button className="tooltip-close" onClick={onClose}>×</button>
+        </div>
     );
 };
 

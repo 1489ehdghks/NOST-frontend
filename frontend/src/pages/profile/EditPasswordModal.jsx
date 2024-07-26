@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axiosInstance from '../../features/auth/AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 import useThemeStore from '../../shared/store/Themestore';
 import './EditPasswordModal.scss';
 

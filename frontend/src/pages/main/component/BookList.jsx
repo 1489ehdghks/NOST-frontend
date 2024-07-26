@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import useThemeStore from '../../../shared/store/Themestore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
+import { fetchBooks } from '../../../features/novel/NobelListInstance';
 import './BookList.scss';
 
 const BookList = () => {
@@ -17,43 +17,34 @@ const BookList = () => {
     const { isLoading, setIsLoading, error, setError } = useGlobalStore();
 
     useEffect(() => {
-        fetchNovels();
-        setShowToast(true); // 컴포넌트가 마운트될 때 토스트 표시
-        const timer = setTimeout(() => {
-            setShowToast(false); // 2초 후에 토스트 숨기기
-        }, 2000);
+        const fetchNovels = async () => {
+            const response = await fetchBooks();
+            if (response.success) {
+                setBooks(response.data);
+            } else {
+                setBooks([]);
+            }
+            setShowToast(true); // 컴포넌트가 마운트될 때 토스트 표시
+            const timer = setTimeout(() => {
+                setShowToast(false); // 2초 후에 토스트 숨기기
+            }, 2000);
 
-        return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+            return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+        };
+
+        fetchNovels();
     }, []);
 
     useEffect(() => {
         sortNovels(sortOption); // 정렬 기준 변경 시 소설 목록 정렬
     }, [sortOption]);
 
-    const fetchNovels = async () => {
-        try {
-            setIsLoading(true); // 로딩 상태 설정
-            const response = await axios.get('https://nost-stella.com/api/books/'); // 백엔드 API 호출
-            console.log('Fetched novels:', response.data); // 응답 데이터 콘솔에 출력
-            if (Array.isArray(response.data)) {
-                setBooks(response.data);
-            } else {
-                console.error('Fetched data is not an array:', response.data);
-                setBooks([]);
-            }
-            setIsLoading(false); // 로딩 완료 후 상태 변경
-        } catch (error) {
-            console.error('Error fetching novels:', error);
-            setBooks([]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     const handleSortChange = (e) => {
         const { value } = e.target;
         setSortOption(value); // 정렬 기준 변경
     };
+
+
 
     const sortNovels = (criteria) => {
         const sortedNovels = [...books];

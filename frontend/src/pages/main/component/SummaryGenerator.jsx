@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './SummaryGenerator.scss';
 import useThemeStore from '../../../shared/store/Themestore';
 import useBookStore from '../../../shared/store/BookStore';
-import axiosInstance from '../../../features/auth/AuthInstance';
+import axiosInstance from '../../../shared/utils/AxiosInstance';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import Prologue from './summaryGeneratorComponent/Prologue';
 import Summary from './summaryGeneratorComponent/Summary';

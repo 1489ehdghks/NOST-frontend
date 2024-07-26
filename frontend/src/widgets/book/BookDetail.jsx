@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import useThemeStore from '../../shared/store/Themestore';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 import BookComment from './BookComment';
 import BookLike from './BookLike';
 import BookRating from './BookRating';
-import axiosInstance from '../../features/auth/AuthInstance';
 import useAuthStore from '../../shared/store/AuthStore'; // useAuthStore 불러오기
 import './BookDetail.scss';
 

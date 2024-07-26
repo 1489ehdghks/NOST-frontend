@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'; // Added Navigate import
 import { jwtDecode } from 'jwt-decode';
 import HomePage from '../pages/home/HomePage';
 import MainPage from '../pages/main/MainPage';
@@ -8,13 +8,12 @@ import Profile from '../pages/profile/Profile';
 import Mybooklist from '../pages/mybooks/Mybooklist';
 import BookDetail from '../widgets/book/BookDetail';
 import SideLayout from '../widgets/layout/sideLayout/SideLayout';
-import SettingsPage from '../pages/settings/SettingsPage'
+import SettingsPage from '../pages/settings/SettingsPage';
 import NotFound from '../pages/NotFound';
 
 const AppRouter = () => {
-    const { isLoggedIn } = useAuthStore();
+    const { isLoggedIn, token, logout } = useAuthStore();
     const navigate = useNavigate();
-    const { token, logout } = useAuthStore(state => ({ token: state.token, logout: state.logout }));
 
     useEffect(() => {
         if (token) {
@@ -23,24 +22,27 @@ const AppRouter = () => {
                 navigate('/');
             };
 
-            const decodedToken = jwtDecode(token);
-            const expirationTime = decodedToken.exp * 1000;
-            const timeoutId = setTimeout(handleLogout, expirationTime - Date.now());
+            try {
+                const decodedToken = jwtDecode(token);
+                const expirationTime = decodedToken.exp * 1000;
+                const timeoutId = setTimeout(handleLogout, expirationTime - Date.now());
 
-            return () => clearTimeout(timeoutId);
+                return () => clearTimeout(timeoutId);
+            } catch (error) {
+                handleLogout();
+            }
         }
     }, [token, logout, navigate]);
-
 
 
     return (
         <Routes>
             <Route path="/" element={isLoggedIn ? <MainPage /> : <HomePage />} />
-            <Route path="/main" element={<MainPage />} />
-            <Route path="/profile" element={<SideLayout><Profile /></SideLayout>} />
-            <Route path="/Mybooklist" element={<SideLayout><Mybooklist /></SideLayout>} />
-            <Route path="/book/:id" element={<SideLayout><BookDetail /></SideLayout>} />
-            <Route path="/settings" element={<SideLayout><SettingsPage /></SideLayout>} />
+            <Route path="/main" element={isLoggedIn ? <MainPage /> : <Navigate to="/" />} />
+            <Route path="/profile" element={isLoggedIn ? <SideLayout><Profile /></SideLayout> : <Navigate to="/" />} />
+            <Route path="/mybooklist" element={isLoggedIn ? <SideLayout><Mybooklist /></SideLayout> : <Navigate to="/" />} />
+            <Route path="/book/:id" element={isLoggedIn ? <SideLayout><BookDetail /></SideLayout> : <Navigate to="/" />} />
+            <Route path="/settings" element={isLoggedIn ? <SideLayout><SettingsPage /></SideLayout> : <Navigate to="/" />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

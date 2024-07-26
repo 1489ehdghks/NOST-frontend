@@ -3,7 +3,7 @@ import useBookStore from '../../../shared/store/BookStore';
 import useThemeStore from '../../../shared/store/Themestore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import './SynopsysResult.scss';
-import axiosInstance from '../../../features/auth/AuthInstance';
+import axiosInstance from '../../../shared/utils/AxiosInstance';
 
 const SynopsysResult = ({ onComplete }) => {
     const { title, genre, theme, tone, setting, characters, bookId, language, setPrologue, setTranslatedPrologue, setChapterNum, setBookId } = useBookStore();

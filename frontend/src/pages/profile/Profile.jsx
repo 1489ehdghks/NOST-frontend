@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useThemeStore from '../../shared/store/Themestore';
 import useAuthStore from '../../shared/store/AuthStore';
-import axiosInstance from '../../features/auth/AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 import EditProfileModal from './EditProfileModal';
 import EditPasswordModal from './EditPasswordModal';
 import LikeBookList from './LikeBookList';

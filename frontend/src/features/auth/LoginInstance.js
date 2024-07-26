@@ -1,9 +1,8 @@
 import useAuthStore from '../../shared/store/AuthStore';
 import useGlobalStore from '../../shared/store/GlobalStore';
-import axiosInstance from './AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 
 export const login = async (email, password) => {
-    useGlobalStore.getState().setIsLoading(true);
     useGlobalStore.getState().setError(null);
     try {
         const response = await axiosInstance.post('/api/accounts/login/', { email, password });

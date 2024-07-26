@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axiosInstance from '../../features/auth/AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 import useAuthStore from '../../shared/store/AuthStore'; // useAuthStore 불러오기
 import './BookComment.scss';
 

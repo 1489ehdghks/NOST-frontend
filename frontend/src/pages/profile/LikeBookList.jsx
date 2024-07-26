@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useThemeStore from '../../../src/shared/store/Themestore';
-import axiosInstance from '../../features/auth/AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 import './LikeBookList.scss';
 
 const LikeBookList = () => {

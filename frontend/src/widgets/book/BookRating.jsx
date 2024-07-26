@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
-import axiosInstance from '../../features/auth/AuthInstance';
+import axiosInstance from '../../shared/utils/AxiosInstance';
 
 const BookRating = ({ bookId, initialRating, onRatingChange }) => {
   const [rating, setRating] = useState(initialRating);
