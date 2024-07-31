@@ -19,6 +19,8 @@ body {
   justify-content: center;
   width: 100vw;
   height: 100vh;
+  background-color: var(--main-bg-color);
+  color: var(--text-color);
 }
 
 .background {
@@ -27,27 +29,30 @@ body {
   height: 100%;
   overflow: hidden;
 }
+
 .theme-toggles {
   position: absolute;
-  top: 2%;
-  right: 5%;
   display: flex;
   flex-direction: column;
-  z-index: 1;
+  z-index: 100;
+  top: 2rem;
+  right: 2rem;
+
   .toggle-button {
     cursor: pointer;
   }
 }
+
 .season-effect {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
 }
 
 .subtitle {
-  color: inherit;
+  color: var(--button-text-color);
 }

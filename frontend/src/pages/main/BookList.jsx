@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useThemeStore from '../../../shared/store/Themestore';
-import useGlobalStore from '../../../shared/store/GlobalStore';
-import { fetchBooks } from '../../../features/novel/NobelListInstance';
+import useThemeStore from '../../shared/store/Themestore';
+import useGlobalStore from '../../shared/store/GlobalStore';
+import { fetchBooks } from '../../features/novel/NovelListInstance';
+import NovelCard from '../../widgets/card/NovelCard';
 import './BookList.scss';
 
 const BookList = () => {
-    const { themes, currentSeason } = useThemeStore(); // 테마 설정 사용
-    const currentTheme = themes[currentSeason]; // 현재 시즌 테마 색상
-    const [sortOption, setSortOption] = useState('newest'); // 초기 정렬기준
+    const { themes, currentSeason } = useThemeStore();
+    const currentTheme = themes[currentSeason];
+    const [sortOption, setSortOption] = useState('newest');
     const [books, setBooks] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
-    const booksPerPage = 8; // 페이지 당 보여질 책의 개수
-    const [showToast, setShowToast] = useState(false); // 토스트 표시 상태 추가
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const booksPerPage = 8;
+    const [showToast, setShowToast] = useState(false);
     const { isLoading, setIsLoading, error, setError } = useGlobalStore();
 
     useEffect(() => {
@@ -24,27 +24,25 @@ const BookList = () => {
             } else {
                 setBooks([]);
             }
-            setShowToast(true); // 컴포넌트가 마운트될 때 토스트 표시
+            setShowToast(true);
             const timer = setTimeout(() => {
-                setShowToast(false); // 2초 후에 토스트 숨기기
+                setShowToast(false);
             }, 2000);
 
-            return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+            return () => clearTimeout(timer);
         };
 
         fetchNovels();
     }, []);
 
     useEffect(() => {
-        sortNovels(sortOption); // 정렬 기준 변경 시 소설 목록 정렬
+        sortNovels(sortOption);
     }, [sortOption]);
 
     const handleSortChange = (e) => {
         const { value } = e.target;
-        setSortOption(value); // 정렬 기준 변경
+        setSortOption(value);
     };
-
-
 
     const sortNovels = (criteria) => {
         const sortedNovels = [...books];
@@ -61,7 +59,7 @@ const BookList = () => {
             default:
                 break;
         }
-        setBooks(sortedNovels); // 정렬된 목록 설정
+        setBooks(sortedNovels);
     };
 
     const indexOfLastBook = currentPage * booksPerPage;
@@ -81,13 +79,13 @@ const BookList = () => {
         return pageNumbers;
     };
 
-    const navigate = useNavigate(); // 페이지 이동을 위한 네비게이트 함수
+    const navigate = useNavigate();
     const handleBookClick = (id) => {
         navigate(`/book/${id}`);
     };
 
     return (
-        <div className="book-list section" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
+        <div className="book-list" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <div className="header">
                 <select value={sortOption} onChange={handleSortChange} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
                     <option value="newest">Newest</option>
@@ -95,29 +93,20 @@ const BookList = () => {
                     <option value="rating">Highest Rated</option>
                 </select>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Novel</th>
-                        <th>Author</th>
-                        <th>Likes</th>
-                        <th>Rating</th>
-                        <th>Created At</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {!isLoading && currentBooks.map((book, index) => (
-                        <tr key={index} onClick={() => handleBookClick(book.id)}>
-                            <td>{book.title}</td>
-                            <td>{book.user_nickname}</td>
-                            <td>{book.is_liked.length}</td>
-                            <td>{book.average_rating}</td>
-                            <td>{new Date(book.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="bookpagination">
+            <div className="card-list">
+                {!isLoading && currentBooks.map((book, index) => (
+                    <NovelCard
+                        key={index}
+                        id={book.id}
+                        image={book.image}
+                        header={book.title}
+                        likes={book.is_liked.length}
+                        rating={book.average_rating}
+                        onClick={() => handleBookClick(book.id)}
+                    />
+                ))}
+            </div>
+            <div className="pagination">
                 <button onClick={() => handleClick(1)} disabled={currentPage === 1}> &laquo; </button>
                 <button onClick={() => handleClick(currentPage - 1)} disabled={currentPage === 1}> &lt; </button>
                 {generatePagination().map((page) => (
@@ -136,15 +125,18 @@ const BookList = () => {
                     <p>Please scroll down to create a novel</p>
                 </div>
             )}
-            <div className="scroll-down-indicator">
-                <a href="#top">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </a>
-            </div>
         </div>
     );
 };
 
 export default BookList;
+
+
+//scroll indicator
+{/* <div className="scroll-down-indicator">
+<a href="#top">
+    <span></span>
+    <span></span>
+    <span></span>
+</a>
+</div> */}

@@ -19,9 +19,9 @@ const SideLayout = ({ children }) => {
     const handleMain = () => {
         navigate('/');
     };
-    const handleLogout = () => {
-        logout();
-        navigate('/');
+
+    const handleCreate = () => {
+        navigate('/create');
     };
 
     const handleProfile = () => {
@@ -36,6 +36,11 @@ const SideLayout = ({ children }) => {
         navigate('/settings');
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
+
     return (
         <div className="side-layout" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <div className="menu-icon" onClick={toggleSidebar}>
@@ -43,6 +48,7 @@ const SideLayout = ({ children }) => {
             </div>
             <div className={`sidebar ${isOpen ? 'open' : ''}`} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
                 <button onClick={handleMain}>Main</button>
+                <button onClick={handleCreate}>Create</button>
                 <button onClick={handleProfile}>Profile</button>
                 <button onClick={handleMybooklist}>My Book</button>
                 <button onClick={handleSettings}>Settings</button>

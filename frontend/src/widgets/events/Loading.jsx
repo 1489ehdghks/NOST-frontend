@@ -10,7 +10,7 @@ const Loading = () => {
         borderBottomColor: currentTheme.buttonTextColor,
         backgroundMain: currentTheme.buttonBackgroundColor,
         backgroundSecondary: currentTheme.sidebarBg,
-        backgroundBefore: currentTheme.additionalColors[3],
+        backgroundBefore: currentTheme.additionalColors,
     };
 
     return (

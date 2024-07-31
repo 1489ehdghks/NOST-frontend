@@ -1,30 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useBookStore from '../../shared/store/BookStore';
+import NovelCard from '../../widgets/card/NovelCard';
 import useThemeStore from '../../shared/store/Themestore';
-import axiosInstance from '../../shared/utils/AxiosInstance';
+import { fetchUserBookList } from '../../features/novel/BooklistInstance';
 import './Mybooklist.scss';
 
-const Card = ({ id, image, header, likes, rating, onClick }) => {
-  const title = useBookStore((state) => state.title);
-  const formatTitle = (title) => title.split(' ').join('_');
-  const defaultImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQT6uhVlGoDqJhKLfS9W_HQOoWJCf-_lsBZzw&s'; // 기본 이미지 URL을 설정합니다.
-  const imageUrl = title ? `https://mynostbucket.s3.ap-northeast-2.amazonaws.com/books/${formatTitle(title)}.png` : defaultImage;
 
-  return (
-    <div className="card" style={{ backgroundImage: `url(${imageUrl})` }} onClick={() => onClick(id)}>
-      <div className="card-header"><h1>{header}</h1></div>
-      <div className="card-content">
-        <p> ❤️ {likes}</p>
-        <p>
-          {'⭐'.repeat(Math.min(Math.floor(rating), 5))}
-          {rating % 1 !== 0 ? (rating % 1 >= 0.5 ? '⭐' : '☆') : ''}
-          {'☆'.repeat(Math.max(5 - Math.ceil(rating), 0))} {rating} / 5
-        </p>
-      </div>
-    </div>
-  );
-};
 
 const Mybooklist = () => {
   const { themes, currentSeason } = useThemeStore();
@@ -35,17 +16,16 @@ const Mybooklist = () => {
   const cardsPerPage = 8;
 
   useEffect(() => {
-    const fetchUserBooks = async () => {
-      try {
-        const response = await axiosInstance.get('https://nost-stella.com/api/books/userbooks/');
+    const fetchBooks = async () => {
+      const response = await fetchUserBookList();
+      if (response.success) {
         setMyBooks(response.data);
-        console.log('data:', response.data);
-      } catch (error) {
-        console.error('There was an error fetching the books!', error);
+      } else {
+        console.error(response.error);
       }
     };
 
-    fetchUserBooks();
+    fetchBooks();
   }, []);
 
   const indexOfLastCard = currentPage * cardsPerPage;
@@ -87,7 +67,7 @@ const Mybooklist = () => {
       <h1 className="title">My Book List</h1>
       <div className="cardlist">
         {currentCards.map((card) => (
-          <Card
+          <NovelCard
             key={card.id}
             id={card.id}
             image={card.image}

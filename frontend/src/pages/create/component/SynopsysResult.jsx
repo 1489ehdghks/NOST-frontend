@@ -3,7 +3,7 @@ import useBookStore from '../../../shared/store/BookStore';
 import useThemeStore from '../../../shared/store/Themestore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import './SynopsysResult.scss';
-import axiosInstance from '../../../shared/utils/AxiosInstance';
+import { deleteSynopsys, generateSynopsys } from '../../../features/novel/SynopsysResultInstance';
 
 const SynopsysResult = ({ onComplete }) => {
     const { title, genre, theme, tone, setting, characters, bookId, language, setPrologue, setTranslatedPrologue, setChapterNum, setBookId } = useBookStore();
@@ -42,26 +42,29 @@ const SynopsysResult = ({ onComplete }) => {
         const prompt = `Recommend the best prologue for me.Title is '${editableTitle}' Genre is '${editableGenre}' Theme is '${editableTheme}' Tone is '${editableTone}' Setting is '${editableSetting}' Characters is '${editableCharacters}'`;
 
         try {
-            console.log("prompt", prompt)
-            console.log("language", language)
-            await axiosInstance.delete(`https://nost-stella.com/api/books/${bookId}/del_prol/`);
-            const response = await axiosInstance.post(`https://nost-stella.com/api/books/${bookId}/`, { summary: prompt, language: language.value });
-            console.log("Accept-response:", response)
-            setBookId(response.data.book_id)
-            setChapterNum(response.data.chapter_num)
-            setPrologue(response.data.prologue);
-            setTranslatedPrologue(response.data.translated_content)
+            console.log("prompt", prompt);
+            console.log("language", language);
+            const deleteResponse = await deleteSynopsys(bookId);
+            if (!deleteResponse.success) throw new Error('Failed to delete prologue');
+
+            const response = await generateSynopsys(bookId, prompt, language.value);
+            if (!response.success) throw new Error('Failed to generate prologue');
+
+            const { data } = response;
+            setBookId(data.book_id);
+            setChapterNum(data.chapter_num);
+            setPrologue(data.prologue);
+            setTranslatedPrologue(data.translated_content);
             onComplete();
         } catch (error) {
             console.error("Error submitting data:", error);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     };
 
-
     return (
-        <div className="section">
+        <div>
             {currentPage === 1 && (
                 <div className="SynopsysResult-letter animate-fade-in" style={{ width: "50vw" }}>
                     <div className="editable-field">

@@ -1,19 +1,128 @@
-.page-container {
+.mainPage {
+    width: 100%;
+    max-width: 100vw;
+    padding: 20px;
+    padding-top: 50px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
-    height: 400vh;
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-}
-
-.section {
-    width: 100vw;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    box-sizing: border-box;
-    scroll-snap-align: start;
-    background-color: transparent !important;
+
+    .listHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding-bottom: 20px;
+        h1 {
+            font-size: 3rem;
+        }
+
+        .headerControls {
+            display: flex;
+            align-items: center;
+
+            select {
+                padding: 10px 20px;
+                font-size: 1.1rem;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                background-color: inherit;
+                color: inherit;
+                cursor: pointer;
+                margin-right: 10px;
+                &:focus {
+                    outline: none;
+                    border-color: #ffffff;
+                }
+            }
+
+            .mainPageButton {
+                padding: 10px 20px;
+                font-size: 1.1rem;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                background-color: inherit;
+                color: inherit;
+                cursor: pointer;
+                margin-right: 10px;
+                &:focus {
+                    outline: none;
+                    border-color: #ffffff;
+                }
+            }
+        }
+
+        .mainPageButton {
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: inherit;
+            color: inherit;
+            cursor: pointer;
+            margin-right: 10px;
+            &:focus {
+                outline: none;
+                border-color: #ffffff;
+            }
+        }
+    }
+
+    .cardList {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+
+        .mainPageButton {
+            border: none;
+            background: none;
+            font-size: 16px;
+            padding: 10px;
+            cursor: pointer;
+            color: inherit;
+
+            &:hover:not(.active) {
+                background-color: transparent;
+            }
+        }
+
+        .active {
+            background-color: #d4d4d4;
+            color: white;
+            border-radius: 5px;
+        }
+    }
+
+    .scrolldown_toast {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        border-radius: 5px;
+        z-index: 1000;
+        animation: fadeInOut 5s ease-in-out;
+    }
+
+    @keyframes fadeInOut {
+        0%,
+        100% {
+            opacity: 0;
+        }
+        20%,
+        80% {
+            opacity: 1;
+        }
+    }
 }

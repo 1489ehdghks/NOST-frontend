@@ -1,4 +1,4 @@
-
+import React, { useEffect } from 'react';
 import './styles/App.scss';
 import AppRouter from './Approuter';
 import { BrowserRouter } from 'react-router-dom';
@@ -11,11 +11,9 @@ import Snow from '../widgets/events/FallenSnow';
 import useGlobalStore from '../shared/store/GlobalStore';
 import Loading from '../widgets/events/Loading';
 
-
 function App() {
-  const { themes, currentSeason, setDarkMode, setThemeMode, setSeason } = useThemeStore();
+  const { currentSeason, setSeason, setCanChangeTheme, canChangeTheme } = useThemeStore();
   const { isLoading } = useGlobalStore();
-  const currentTheme = themes[currentSeason];
 
   const getSeasonEffect = () => {
     switch (currentSeason) {
@@ -33,23 +31,19 @@ function App() {
   };
 
   const handleSeasonChange = (season) => {
-    setSeason(season);
-    if (season === 'winter' || season === 'summer') {
-      setDarkMode(true);
-    } else {
-      setDarkMode(false);
-    }
-    if (season === 'autumn' || season === 'winter') {
-      setThemeMode(true);
-    } else {
-      setThemeMode(false);
+    if (canChangeTheme) {
+      setSeason(season);
+      setCanChangeTheme(false);
+      setTimeout(() => {
+        setCanChangeTheme(true);
+      }, 1000);
     }
   };
 
   return (
     <>
       {isLoading && <Loading />}
-      <div className="App" style={{ backgroundColor: currentTheme.primary, color: currentTheme.textColor }}>
+      <div className="App">
         <div className="theme-toggles">
           <ThemeMode currentSeason={currentSeason} setSeason={handleSeasonChange} />
         </div>

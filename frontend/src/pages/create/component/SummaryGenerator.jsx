@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './SummaryGenerator.scss';
 import useThemeStore from '../../../shared/store/Themestore';
 import useBookStore from '../../../shared/store/BookStore';
-import axiosInstance from '../../../shared/utils/AxiosInstance';
+import { deletePrologue, generatePrologue, generateSummary } from '../../../features/novel/SummaryInstance'; // 수정된 부분
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import Prologue from './summaryGeneratorComponent/Prologue';
 import Summary from './summaryGeneratorComponent/Summary';
@@ -20,11 +20,15 @@ const SummaryGenerator = () => {
         const prompt = `Please write a prologue that matches the content..${prologue}`;
 
         try {
-            await axiosInstance.delete(`https://nost-stella.com/api/books/${bookId}/del_prol/`);
-            const response = await axiosInstance.post(`https://nost-stella.com/api/books/${bookId}/`, { summary: prompt, language: language.value });
-            console.log("response:", response);
-            setPrologue(response.data.prologue);
-            setTranslatedPrologue(response.data.translated_content);
+            const deleteResponse = await deletePrologue(bookId);
+            if (!deleteResponse.success) throw new Error('Failed to delete prologue');
+
+            const response = await generatePrologue(bookId, prompt, language.value);
+            if (!response.success) throw new Error('Failed to generate prologue');
+
+            const { data } = response;
+            setPrologue(data.prologue);
+            setTranslatedPrologue(data.translated_content);
         } catch (error) {
             setError(error);
             console.error("Error submitting data:", error);
@@ -38,14 +42,15 @@ const SummaryGenerator = () => {
         setIsLoading(true);
         const prompt = `Please write a scean that matches the content.${prologue}`;
         try {
-            const response = await axiosInstance.post(`https://nost-stella.com/api/books/${bookId}/`, { summary: prompt, language: language.value });
-            console.log("NextResponse:", response.data);
-            setPrologue(response.data.prologue)
-            setChapterNum(response.data.chapter_num);
-            setTranslatedContent(response.data.translated_content)
-            setBookId(response.data.book_id)
-            setRecommendations(response.data.recommendations)
-            console.log("chapterNum:", chapterNum)
+            const response = await generateSummary(bookId, prompt, language.value);
+            if (!response.success) throw new Error('Failed to generate summary');
+
+            const { data } = response;
+            setPrologue(data.prologue);
+            setChapterNum(data.chapter_num);
+            setTranslatedContent(data.translated_content);
+            setBookId(data.book_id);
+            setRecommendations(data.recommendations);
         } catch (error) {
             setError(error);
             console.error("Error submitting data:", error);
@@ -57,17 +62,17 @@ const SummaryGenerator = () => {
     const handleRecommendationClick = async (description) => {
         triggerAnimation();
         setIsLoading(true);
-        console.log("description:", description)
-        const prompt = `Please write a scean that matches the content.${description}`
+        const prompt = `Please write a scean that matches the content.${description}`;
         try {
-            const response = await axiosInstance.post(`https://nost-stella.com/api/books/${bookId}/`, { summary: prompt, language: language.value });
-            console.log("RecommendationResponse:", response.data);
-            setSummary(response.data.final_summary);
-            setTranslatedContent(response.data.translated_content)
-            setBookId(response.data.book_id)
-            setChapterNum(response.data.chapter_num);
-            setRecommendations(response.data.recommendations)
-            console.log("recommendations:", recommendations)
+            const response = await generateSummary(bookId, prompt, language.value);
+            if (!response.success) throw new Error('Failed to generate summary');
+
+            const { data } = response;
+            setSummary(data.final_summary);
+            setTranslatedContent(data.translated_content);
+            setBookId(data.book_id);
+            setChapterNum(data.chapter_num);
+            setRecommendations(data.recommendations);
         } catch (err) {
             setError(err);
             alert(error.message);
@@ -80,14 +85,15 @@ const SummaryGenerator = () => {
         triggerAnimation();
         setIsLoading(true);
         try {
-            const response = await axiosInstance.post(`https://nost-stella.com/api/books/${bookId}/`, { summary: userText, language: language.value });
-            console.log("TextSubmitResponse:", response.data);
-            setSummary(response.data.final_summary);
-            setTranslatedContent(response.data.translated_content)
-            setBookId(response.data.book_id)
-            setChapterNum(response.data.chapter_num);
-            setRecommendations(response.data.recommendations)
-            console.log("translatedContent", translatedContent)
+            const response = await generateSummary(bookId, userText, language.value);
+            if (!response.success) throw new Error('Failed to generate summary');
+
+            const { data } = response;
+            setSummary(data.final_summary);
+            setTranslatedContent(data.translated_content);
+            setBookId(data.book_id);
+            setChapterNum(data.chapter_num);
+            setRecommendations(data.recommendations);
         } catch (err) {
             setError(err);
             alert(error.message);
@@ -107,7 +113,7 @@ const SummaryGenerator = () => {
     };
 
     return (
-        <div className="novel-continuation section" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
+        <div className="novel-continuation" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             {chapterNum === 0 ? (
                 <div className="SummaryGenerator-fullpage">
                     <Prologue

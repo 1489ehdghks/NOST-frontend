@@ -3,27 +3,14 @@ import useThemeStore from '../../shared/store/Themestore';
 import './styles/ThemedButton.scss';
 
 const ThemedButton = ({ children, onClick, className }) => {
-    const { themes, isThemeMode, isDarkMode } = useThemeStore();
+    const { themes, currentSeason, isDarkMode } = useThemeStore();
 
-    const getCurrentTheme = () => {
-        if (isDarkMode && isThemeMode) {
-            return themes.winter;
-        } else if (isDarkMode && !isThemeMode) {
-            return themes.summer;
-        } else if (!isDarkMode && isThemeMode) {
-            return themes.autumn;
-        } else {
-            return themes.spring;
-        }
-    };
-
-    const currentTheme = getCurrentTheme();
-
+    const currentTheme = themes[currentSeason];
     return (
         <button
-            className={`themed-button ${className}`}
+            className={`themed-button`}
             onClick={onClick}
-            style={{ color: currentTheme.neonEffect.color, textShadow: currentTheme.neonEffect.buttonTextShadow }}
+            style={{ color: currentTheme.neonEffect.color }}
         >
             {children}
         </button>

@@ -4,7 +4,7 @@ import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import useBookStore from '../../../shared/store/BookStore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import useThemeStore from '../../../shared/store/Themestore';
-import { generateSynopsis } from '../../../features/novel/SynopsysGeneratorInstance';
+import { generateSynopsis } from '../../../features/novel/SynopsysInstance';
 import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';
@@ -95,7 +95,42 @@ const SynopsysGenerator = ({ onComplete }) => {
         setSelectedCountry(selectedOption);
     };
 
-    const generateSynopsis = async (e) => {
+    const fetchSynopsis = async (requestData, retries = 0) => {
+        try {
+            console.log("Attempting fetchSynopsis, retry:", retries);
+            const response = await generateSynopsis(requestData);
+            const content = response.data.content;
+
+            console.log("response received:", response);
+
+            if (content.characters && !['문자 없음', '', '登場人物なし', '无字符', 'No Characters'].includes(content.characters)) {
+                setBookId(response.data.book_id);
+                setSynopsis(content.synopsis);
+                setTitle(content.title);
+                setGenre(content.genre);
+                setTheme(content.theme);
+                setTone(content.tone);
+                setSetting(content.setting);
+                setCharacters(content.characters);
+                setIsLoading(false);
+                onComplete();
+            } else {
+                throw new Error('설정 저장 문제');
+            }
+        } catch (err) {
+            console.error("Error in fetchSynopsis:", err);
+            if (retries < 2) {
+                alert("캐릭터 설정에 문제가 생겨 다시 시도합니다.");
+                fetchSynopsis(requestData, retries + 1);
+            } else {
+                alert('다시 시도해주세요');
+                setIsLoading(false);
+                setError(err);
+            }
+        }
+    };
+
+    const generateSynopsisHandler = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         setError(null);
@@ -117,41 +152,7 @@ const SynopsysGenerator = ({ onComplete }) => {
 
         console.log("requestData created:", requestData);
 
-        const fetchSynopsis = async (retries = 0) => {
-            try {
-                console.log("Attempting fetchSynopsis, retry:", retries);
-                const response = await generateSynopsis(requestData);
-                const content = response.data.content;
-
-                console.log("response received:", response);
-
-                if (content.characters && !['문자 없음', '', '登場人物なし', '无字符', 'No Characters'].includes(content.characters)) {
-                    setBookId(response.data.book_id);
-                    setSynopsis(content.synopsis);
-                    setTitle(content.title);
-                    setGenre(content.genre);
-                    setTheme(content.theme);
-                    setTone(content.tone);
-                    setSetting(content.setting);
-                    setCharacters(content.characters);
-                    setIsLoading(false);
-                    onComplete();
-                } else {
-                    throw new Error('설정 저장 문제');
-                }
-            } catch (err) {
-                console.error("Error in fetchSynopsis:", err);
-                if (retries < 2) {
-                    alert("캐릭터 설정에 문제가 생겨 다시 시도합니다.");
-                    fetchSynopsis(retries + 1);
-                } else {
-                    alert('다시 시도해주세요');
-                    setIsLoading(false);
-                    setError(err);
-                }
-            }
-        };
-        fetchSynopsis();
+        fetchSynopsis(requestData);
     };
 
     const buttonClass = (selected, current) => selected.includes(current) ? 'selected' : '';
@@ -159,7 +160,7 @@ const SynopsysGenerator = ({ onComplete }) => {
     return (
         <div className="novel-generator section" style={{ fontFamily: font.shapeFont, backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <h1 className="synopsis-heading">New Novel</h1>
-            <form onSubmit={generateSynopsis}>
+            <form onSubmit={generateSynopsisHandler}>
                 <div className="user-inputs">
                     <div className="synopsis-button-group">
                         <h2 className="synopsis-h2">Language</h2>
@@ -207,8 +208,8 @@ const SynopsysGenerator = ({ onComplete }) => {
                                             onClick={() => handleEraChange(prompt)}
                                             data-prompt={prompt}
                                             style={{
-                                                backgroundColor: selectedEra === prompt ? currentTheme.additionalColors[1] : currentTheme.buttonBackgroundColor,
-                                                borderColor: currentTheme.additionalColors[1],
+                                                backgroundColor: selectedEra === prompt ? currentTheme.additionalColors : currentTheme.buttonBackgroundColor,
+                                                borderColor: currentTheme.additionalColors,
                                                 color: selectedEra === prompt ? 'white' : currentTheme.buttonTextColor,
                                             }}
                                         >
@@ -234,8 +235,8 @@ const SynopsysGenerator = ({ onComplete }) => {
                                             onClick={() => handleGenreChange(prompt)}
                                             data-prompt={prompt}
                                             style={{
-                                                backgroundColor: selectedGenres.includes(prompt) ? currentTheme.additionalColors[1] : currentTheme.buttonBackgroundColor,
-                                                borderColor: currentTheme.additionalColors[1],
+                                                backgroundColor: selectedGenres.includes(prompt) ? currentTheme.additionalColors : currentTheme.buttonBackgroundColor,
+                                                borderColor: currentTheme.additionalColors,
                                                 color: selectedGenres.includes(prompt) ? 'white' : currentTheme.buttonTextColor,
                                             }}
                                         >
@@ -261,8 +262,8 @@ const SynopsysGenerator = ({ onComplete }) => {
                                             onClick={() => handleDetailChange(prompt)}
                                             data-prompt={prompt}
                                             style={{
-                                                backgroundColor: selectedDetails.includes(prompt) ? currentTheme.additionalColors[1] : currentTheme.buttonBackgroundColor,
-                                                borderColor: currentTheme.additionalColors[1],
+                                                backgroundColor: selectedDetails.includes(prompt) ? currentTheme.additionalColors : currentTheme.buttonBackgroundColor,
+                                                borderColor: currentTheme.additionalColors,
                                                 color: selectedDetails.includes(prompt) ? 'white' : currentTheme.buttonTextColor,
                                             }}
                                         >

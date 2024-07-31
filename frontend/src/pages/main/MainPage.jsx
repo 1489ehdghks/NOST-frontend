@@ -1,60 +1,186 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import useThemeStore from '../../shared/store/Themestore';
+import useGlobalStore from '../../shared/store/GlobalStore';
+import useAuthStore from '../../shared/store/AuthStore';
+import { fetchBooks } from '../../features/novel/NovelListInstance';
+import NovelCard from '../../widgets/card/NovelCard';
 import SideLayout from '../../widgets/layout/sideLayout/SideLayout';
-import BookList from './component/BookList';
-import SynopsysGenerator from './component/SynopsysGenerator';
-import SummaryGenerator from './component/SummaryGenerator';
-import SynopsysResult from './component/SynopsysResult';
 import './MainPage.scss';
 
 const MainPage = () => {
-  const containerRef = useRef(null);
-  const [currentSection, setCurrentSection] = useState(0);
+    const { themes, currentSeason } = useThemeStore();
+    const currentTheme = themes[currentSeason];
+    const [sortOption, setSortOption] = useState('newest');
+    const [novels, setNovels] = useState([]);
+    const [myNovels, setMyNovels] = useState([]);
+    const [showMoreMyNovels, setShowMoreMyNovels] = useState(false);
+    const [showMoreNovelShowcase, setShowMoreNovelShowcase] = useState(false);
+    const [currentPageMyNovels, setCurrentPageMyNovels] = useState(1);
+    const [currentPageNovelShowcase, setCurrentPageNovelShowcase] = useState(1);
+    const novelsPerPageMyNovels = showMoreMyNovels ? 20 : 5;
+    const novelsPerPageNovelShowcase = showMoreNovelShowcase ? 20 : 5;
+    const { isLoading } = useGlobalStore();
+    const { userId: currentUserId } = useAuthStore();
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    const handleScroll = (event) => {
-      event.preventDefault();
-      const delta = event.deltaY;
-      if (delta > 0) {
-        navigateToNext();
-      } else {
-        navigateToPrev();
-      }
+    useEffect(() => {
+        const fetchNovels = async () => {
+            const response = await fetchBooks();
+            if (response.success) {
+                let filteredNovels = response.data;
+                sortNovels(filteredNovels, sortOption);
+                setNovels(filteredNovels);
+                setMyNovels(response.data.filter(novel => novel.user_id === currentUserId));
+            } else {
+                setNovels([]);
+                setMyNovels([]);
+            }
+        };
+        fetchNovels();
+    }, [sortOption]);
+
+
+    const handleSortChange = (e) => {
+        const { value } = e.target;
+        setSortOption(value);
     };
 
-    const container = containerRef.current;
-    container.addEventListener('wheel', handleScroll, { passive: false });
-
-    return () => {
-      container.removeEventListener('wheel', handleScroll);
+    const sortNovels = (novels, criteria) => {
+        switch (criteria) {
+            case 'newest':
+                novels.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                break;
+            case 'popular':
+                novels.sort((a, b) => b.is_liked.length - a.is_liked.length);
+                break;
+            case 'rating':
+                novels.sort((a, b) => b.average_rating - a.average_rating);
+                break;
+            case 'userbooks':
+                novels.sort((a, b) => a.user_id === currentUserId ? -1 : 1);
+                break;
+            default:
+                break;
+        }
     };
-  }, [currentSection]);
 
-  const navigateToNext = () => {
-    if (currentSection < 3) {
-      setCurrentSection(currentSection + 1);
-      const sections = containerRef.current.querySelectorAll('.section');
-      sections[currentSection + 1].scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+    const handleNovelClick = (id) => {
+        navigate(`/book/${id}`);
+    };
 
-  const navigateToPrev = () => {
-    if (currentSection > 0) {
-      setCurrentSection(currentSection - 1);
-      const sections = containerRef.current.querySelectorAll('.section');
-      sections[currentSection - 1].scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+    const handleShowMoreMyNovels = () => {
+        setShowMoreMyNovels(prev => !prev);
+    };
 
-  return (
-    <SideLayout>
-      <div className="page-container" ref={containerRef}>
-        <BookList />
-        <SynopsysGenerator onComplete={navigateToNext} />
-        <SynopsysResult onComplete={navigateToNext} />
-        <SummaryGenerator />
-      </div>
-    </SideLayout>
-  );
+    const handleShowMoreNovelShowcase = () => {
+        setShowMoreNovelShowcase(prev => !prev);
+    };
+
+    const paginate = (novels, currentPage, novelsPerPage) => {
+        const indexOfLastNovel = currentPage * novelsPerPage;
+        const indexOfFirstNovel = indexOfLastNovel - novelsPerPage;
+        return novels.slice(indexOfFirstNovel, indexOfLastNovel);
+    };
+
+    const generatePagination = (novels, novelsPerPage) => {
+        const totalPages = Math.ceil(novels.length / novelsPerPage);
+        const pageNumbers = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pageNumbers.push(i);
+        }
+        return pageNumbers;
+    };
+
+    const handleClickMyNovels = (page) => {
+        setCurrentPageMyNovels(page);
+    };
+
+    const handleClickNovelShowcase = (page) => {
+        setCurrentPageNovelShowcase(page);
+    };
+
+    return (
+        <div className="mainPage" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
+            <SideLayout>
+                <div className='MyNovelList'>
+                    <div className="listHeader">
+                        <h1 style={{ color: currentTheme.buttonTextColor }}>My Novel</h1>
+                        <button className='mainPageButton' onClick={handleShowMoreMyNovels} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
+                            {showMoreMyNovels ? 'Show Less -' : 'Show More +'}
+                        </button>
+                    </div>
+                    <div className="cardList">
+                        {!isLoading && paginate(myNovels, currentPageMyNovels, novelsPerPageMyNovels).map((novel) => (
+                            <NovelCard
+                                key={novel.id}
+                                id={novel.id}
+                                image={novel.image}
+                                header={novel.title}
+                                likes={novel.is_liked.length}
+                                rating={novel.average_rating}
+                                onClick={() => handleNovelClick(novel.id)}
+                            />
+                        ))}
+                    </div>
+                    {showMoreMyNovels && (
+                        <div className="pagination">
+                            {generatePagination(myNovels, novelsPerPageMyNovels).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => handleClickMyNovels(page)}
+                                    className={currentPageMyNovels === page ? 'active' : ''}>
+                                    {page}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className='sortedList'>
+                    <div className="listHeader">
+                        <h1 style={{ color: currentTheme.buttonTextColor }}>Novel Showcase</h1>
+                        <div className="headerControls">
+                            <select value={sortOption} onChange={handleSortChange} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
+                                <option value="newest">Newest</option>
+                                <option value="popular">Most Popular</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="userbooks">My Novels</option>
+                            </select>
+                            <button className='mainPageButton' onClick={handleShowMoreNovelShowcase} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
+                                {showMoreNovelShowcase ? 'Show Less -' : 'Show More +'}
+                            </button>
+                        </div>
+                    </div>
+                    <div className="cardList">
+                        {!isLoading && paginate(novels, currentPageNovelShowcase, novelsPerPageNovelShowcase).map((novel) => (
+                            <NovelCard
+                                key={novel.id}
+                                id={novel.id}
+                                image={novel.image}
+                                header={novel.title}
+                                likes={novel.is_liked.length}
+                                rating={novel.average_rating}
+                                onClick={() => handleNovelClick(novel.id)}
+                            />
+                        ))}
+                    </div>
+                    {showMoreNovelShowcase && (
+                        <div className="pagination">
+                            {generatePagination(novels, novelsPerPageNovelShowcase).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => handleClickNovelShowcase(page)}
+                                    className={currentPageNovelShowcase === page ? 'active' : ''}>
+                                    {page}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </SideLayout>
+        </div>
+    );
 };
 
 export default MainPage;

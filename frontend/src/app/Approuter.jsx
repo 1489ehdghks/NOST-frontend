@@ -3,12 +3,13 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'; // Adde
 import { jwtDecode } from 'jwt-decode';
 import HomePage from '../pages/home/HomePage';
 import MainPage from '../pages/main/MainPage';
-import useAuthStore from '../shared/store/AuthStore';
+import CreatePage from '../pages/create/CreatePage';
 import Profile from '../pages/profile/Profile';
-import Mybooklist from '../pages/mybooks/Mybooklist';
+import Mybooklist from '../pages/main/Mybooklist';
 import BookDetail from '../widgets/book/BookDetail';
 import SideLayout from '../widgets/layout/sideLayout/SideLayout';
 import SettingsPage from '../pages/settings/SettingsPage';
+import useAuthStore from '../shared/store/AuthStore';
 import NotFound from '../pages/NotFound';
 
 const AppRouter = () => {
@@ -39,6 +40,7 @@ const AppRouter = () => {
         <Routes>
             <Route path="/" element={isLoggedIn ? <MainPage /> : <HomePage />} />
             <Route path="/main" element={isLoggedIn ? <MainPage /> : <Navigate to="/" />} />
+            <Route path="/create" element={isLoggedIn ? <CreatePage /> : <Navigate to="/" />} />
             <Route path="/profile" element={isLoggedIn ? <SideLayout><Profile /></SideLayout> : <Navigate to="/" />} />
             <Route path="/mybooklist" element={isLoggedIn ? <SideLayout><Mybooklist /></SideLayout> : <Navigate to="/" />} />
             <Route path="/book/:id" element={isLoggedIn ? <SideLayout><BookDetail /></SideLayout> : <Navigate to="/" />} />
