@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 class BlossomItem {
     static defaultOptions = {
         color: '#ffc0cb',
-        radius: [3.0, 5.0],
+        radius: [5.0, 7.0],
         speed: [1, 2],
         wind: [-1.5, 1.5],
         blur: 2

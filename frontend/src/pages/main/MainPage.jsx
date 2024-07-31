@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useThemeStore from '../../shared/store/Themestore';
 import useGlobalStore from '../../shared/store/GlobalStore';
@@ -38,15 +38,14 @@ const MainPage = () => {
             }
         };
         fetchNovels();
-    }, [sortOption]);
+    }, [sortOption, currentUserId]);
 
-
-    const handleSortChange = (e) => {
+    const handleSortChange = useCallback((e) => {
         const { value } = e.target;
         setSortOption(value);
-    };
+    }, []);
 
-    const sortNovels = (novels, criteria) => {
+    const sortNovels = useCallback((novels, criteria) => {
         switch (criteria) {
             case 'newest':
                 novels.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -63,47 +62,52 @@ const MainPage = () => {
             default:
                 break;
         }
-    };
+    }, [currentUserId]);
 
-    const handleNovelClick = (id) => {
+    const handleNovelClick = useCallback((id) => {
         navigate(`/book/${id}`);
-    };
+    }, [navigate]);
 
-    const handleShowMoreMyNovels = () => {
+    const handleShowMoreMyNovels = useCallback(() => {
         setShowMoreMyNovels(prev => !prev);
-    };
+    }, []);
 
-    const handleShowMoreNovelShowcase = () => {
+    const handleShowMoreNovelShowcase = useCallback(() => {
         setShowMoreNovelShowcase(prev => !prev);
-    };
+    }, []);
 
-    const paginate = (novels, currentPage, novelsPerPage) => {
+    const paginate = useCallback((novels, currentPage, novelsPerPage) => {
         const indexOfLastNovel = currentPage * novelsPerPage;
         const indexOfFirstNovel = indexOfLastNovel - novelsPerPage;
         return novels.slice(indexOfFirstNovel, indexOfLastNovel);
-    };
+    }, []);
 
-    const generatePagination = (novels, novelsPerPage) => {
+    const generatePagination = useCallback((novels, novelsPerPage) => {
         const totalPages = Math.ceil(novels.length / novelsPerPage);
         const pageNumbers = [];
         for (let i = 1; i <= totalPages; i++) {
             pageNumbers.push(i);
         }
         return pageNumbers;
-    };
+    }, []);
 
-    const handleClickMyNovels = (page) => {
+    const handleClickMyNovels = useCallback((page) => {
         setCurrentPageMyNovels(page);
-    };
+    }, []);
 
-    const handleClickNovelShowcase = (page) => {
+    const handleClickNovelShowcase = useCallback((page) => {
         setCurrentPageNovelShowcase(page);
-    };
+    }, []);
+
+    const paginatedMyNovels = useMemo(() => paginate(myNovels, currentPageMyNovels, novelsPerPageMyNovels), [myNovels, currentPageMyNovels, novelsPerPageMyNovels, paginate]);
+    const paginatedNovelShowcase = useMemo(() => paginate(novels, currentPageNovelShowcase, novelsPerPageNovelShowcase), [novels, currentPageNovelShowcase, novelsPerPageNovelShowcase, paginate]);
+    const myNovelsPagination = useMemo(() => generatePagination(myNovels, novelsPerPageMyNovels), [myNovels, novelsPerPageMyNovels, generatePagination]);
+    const novelShowcasePagination = useMemo(() => generatePagination(novels, novelsPerPageNovelShowcase), [novels, novelsPerPageNovelShowcase, generatePagination]);
 
     return (
         <div className="mainPage" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <SideLayout>
-                <div className='MyNovelList'>
+                <div className='myNovelList'>
                     <div className="listHeader">
                         <h1 style={{ color: currentTheme.buttonTextColor }}>My Novel</h1>
                         <button className='mainPageButton' onClick={handleShowMoreMyNovels} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
@@ -111,7 +115,7 @@ const MainPage = () => {
                         </button>
                     </div>
                     <div className="cardList">
-                        {!isLoading && paginate(myNovels, currentPageMyNovels, novelsPerPageMyNovels).map((novel) => (
+                        {!isLoading && paginatedMyNovels.map((novel) => (
                             <NovelCard
                                 key={novel.id}
                                 id={novel.id}
@@ -125,7 +129,7 @@ const MainPage = () => {
                     </div>
                     {showMoreMyNovels && (
                         <div className="pagination">
-                            {generatePagination(myNovels, novelsPerPageMyNovels).map((page) => (
+                            {myNovelsPagination.map((page) => (
                                 <button
                                     key={page}
                                     onClick={() => handleClickMyNovels(page)}
@@ -138,10 +142,10 @@ const MainPage = () => {
                 </div>
 
                 <div className='sortedList'>
-                    <div className="listHeader">
+                    <div className="listHeader" style={{ paddingTop: '100px' }}>
                         <h1 style={{ color: currentTheme.buttonTextColor }}>Novel Showcase</h1>
                         <div className="headerControls">
-                            <select value={sortOption} onChange={handleSortChange} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
+                            <select className='mainPageSelect' value={sortOption} onChange={handleSortChange} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
                                 <option value="newest">Newest</option>
                                 <option value="popular">Most Popular</option>
                                 <option value="rating">Highest Rated</option>
@@ -153,7 +157,7 @@ const MainPage = () => {
                         </div>
                     </div>
                     <div className="cardList">
-                        {!isLoading && paginate(novels, currentPageNovelShowcase, novelsPerPageNovelShowcase).map((novel) => (
+                        {!isLoading && paginatedNovelShowcase.map((novel) => (
                             <NovelCard
                                 key={novel.id}
                                 id={novel.id}
@@ -166,8 +170,8 @@ const MainPage = () => {
                         ))}
                     </div>
                     {showMoreNovelShowcase && (
-                        <div className="pagination">
-                            {generatePagination(novels, novelsPerPageNovelShowcase).map((page) => (
+                        <div className="pagination" style={{ paddingBottom: '100px' }}>
+                            {novelShowcasePagination.map((page) => (
                                 <button
                                     key={page}
                                     onClick={() => handleClickNovelShowcase(page)}
