@@ -9,7 +9,7 @@ import SideLayout from '../../widgets/layout/sideLayout/SideLayout';
 import './MainPage.scss';
 
 const MainPage = () => {
-    const { themes, currentSeason } = useThemeStore();
+    const { font, themes, currentSeason } = useThemeStore();
     const currentTheme = themes[currentSeason];
     const [sortOption, setSortOption] = useState('newest');
     const [novels, setNovels] = useState([]);
@@ -109,7 +109,7 @@ const MainPage = () => {
             <SideLayout>
                 <div className='myNovelList'>
                     <div className="listHeader">
-                        <h1 style={{ color: currentTheme.buttonTextColor }}>My Novel</h1>
+                        <h1 style={{ color: currentTheme.themeTextColor, textShadow: currentTheme.neonEffect.titleTextShadow, fontFamily: font.nomalFont }}>My Novel</h1>
                         <button className='mainPageButton' onClick={handleShowMoreMyNovels} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
                             {showMoreMyNovels ? 'Show Less -' : 'Show More +'}
                         </button>
@@ -143,7 +143,7 @@ const MainPage = () => {
 
                 <div className='sortedList'>
                     <div className="listHeader" style={{ paddingTop: '100px' }}>
-                        <h1 style={{ color: currentTheme.buttonTextColor }}>Novel Showcase</h1>
+                        <h1 style={{ color: currentTheme.themeTextColor, textShadow: currentTheme.neonEffect.titleTextShadow, fontFamily: font.nomalFont }}>Novel Showcase</h1>
                         <div className="headerControls">
                             <select className='mainPageSelect' value={sortOption} onChange={handleSortChange} style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}>
                                 <option value="newest">Newest</option>

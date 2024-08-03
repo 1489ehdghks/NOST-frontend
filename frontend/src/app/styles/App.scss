@@ -21,6 +21,26 @@ body {
   height: 100vh;
   background-color: var(--main-bg-color);
   color: var(--text-color);
+
+  &.spring {
+    --main-bg-color: #ffe4e1;
+    --text-color: #000;
+  }
+
+  &.summer {
+    --main-bg-color: #082747;
+    --text-color: #fff;
+  }
+
+  &.autumn {
+    --main-bg-color: #ffdead;
+    --text-color: #000;
+  }
+
+  &.winter {
+    --main-bg-color: #1c1c1c;
+    --text-color: #fff;
+  }
 }
 
 .background {
@@ -51,8 +71,4 @@ body {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-}
-
-.subtitle {
-  color: var(--button-text-color);
 }

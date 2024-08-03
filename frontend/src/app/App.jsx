@@ -43,7 +43,7 @@ function App() {
   return (
     <>
       {isLoading && <Loading />}
-      <div className="App">
+      <div className={`App ${currentSeason}`}>
         <div className="theme-toggles">
           <ThemeMode currentSeason={currentSeason} setSeason={handleSeasonChange} />
         </div>

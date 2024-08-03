@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 
 class BlossomItem {
     static defaultOptions = {
-        color: '#ffc0cb',
-        radius: [5.0, 7.0],
-        speed: [1, 2],
+        colors: ['#ffc0cb',],
+        radius: [4.0, 10.0],
+        speed: [0.5, 2.5],
         wind: [-1.5, 1.5],
         blur: 2
     };
@@ -23,6 +23,9 @@ class BlossomItem {
         this.radiusY = this.radiusX * 0.6;
         this.speed = BlossomItem.randomBetween(...this.options.speed);
         this.wind = BlossomItem.randomBetween(...this.options.wind);
+        this.color = this.options.colors[Math.floor(Math.random() * this.options.colors.length)];
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.02;
     }
 
     static randomBetween(min, max) {
@@ -32,23 +35,30 @@ class BlossomItem {
     update() {
         this.y += this.speed;
         this.x += this.wind;
+        this.rotation += this.rotationSpeed;
 
-        if (this.y > this.canvas.height) {
-            this.initialize(); // 입자 재설정
+        if (this.y > this.canvas.height || this.x > this.canvas.width || this.x < 0) {
+            this.initialize();
         }
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
         ctx.beginPath();
-        ctx.ellipse(this.x, this.y, this.radiusX, this.radiusY, Math.PI / 4, 0, 2 * Math.PI);
-        ctx.fillStyle = this.options.color;
+        ctx.ellipse(0, 0, this.radiusX, this.radiusY, Math.PI / 4, 0, 2 * Math.PI);
+        ctx.fillStyle = this.color;
         ctx.shadowBlur = this.options.blur;
-        ctx.shadowColor = this.options.color;
+        ctx.shadowColor = this.color;
         ctx.fill();
         ctx.closePath();
+        ctx.restore();
     }
 }
-const Blossom = ({ count = 50 }) => {
+
+
+const Blossom = ({ count = 70 }) => {
     const canvasRef = useRef(null);
     let blossoms = [];
 

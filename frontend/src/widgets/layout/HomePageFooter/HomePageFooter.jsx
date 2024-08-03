@@ -12,12 +12,15 @@ const HomePageFooter = () => {
                 <a href="https://github.com/1489ehdghks/NOST-frontend" target="_blank" rel="noopener noreferrer" style={{ color: 'black' }}>
                     <FaGithub size={24} />
                 </a>
-                <a href="https://www.youtube.com/watch?v=O-UrnsCOSCM" target="_blank" rel="noopener noreferrer" style={{ color: 'red' }}>
+
+                <a style={{ color: 'red' }}>
                     <FaYoutube size={24} />
                 </a>
             </div>
         </footer>
+
     );
 };
 
 export default HomePageFooter;
+//href="https://www.youtube.com/watch?v=O-UrnsCOSCM" target="_blank" rel="noopener noreferrer"

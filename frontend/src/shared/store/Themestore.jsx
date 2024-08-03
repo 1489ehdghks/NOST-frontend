@@ -52,7 +52,7 @@ const useThemeStore = create(set => ({
             subtitle: 'Find calmness in the summer rain with Novel Stella. Find calmness in the summer rain.',
             sidebarBg: '#B0C4DE',
             buttonBackgroundColor: '#b7e1ff',
-            buttonTextColor: '#002d70',
+            buttonTextColor: '#07283f',
             teamColor: '#fff',
             drinkColor: '#001f3f',
             neonEffect: {
