@@ -29,6 +29,7 @@ const MainPage = () => {
             const response = await fetchBooks();
             if (response.success) {
                 let filteredNovels = response.data;
+                console.log("filteredNovels:", filteredNovels)
                 sortNovels(filteredNovels, sortOption);
                 setNovels(filteredNovels);
                 setMyNovels(response.data.filter(novel => novel.user_id === currentUserId));
@@ -119,6 +120,7 @@ const MainPage = () => {
                             <NovelCard
                                 key={novel.id}
                                 id={novel.id}
+                                title={novel.title}
                                 image={novel.image}
                                 header={novel.title}
                                 likes={novel.is_liked.length}
@@ -161,6 +163,7 @@ const MainPage = () => {
                             <NovelCard
                                 key={novel.id}
                                 id={novel.id}
+                                title={novel.title}
                                 image={novel.image}
                                 header={novel.title}
                                 likes={novel.is_liked.length}

@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import SideLayout from '../../widgets/layout/sideLayout/SideLayout';
-import BookList from '../main/BookList';
 import SynopsysGenerator from './component/SynopsysGenerator';
 import SummaryGenerator from './component/SummaryGenerator';
 import SynopsysResult from './component/SynopsysResult';
@@ -9,7 +8,7 @@ import './CreatePage.scss';
 const CreatePage = () => {
   const containerRef = useRef(null);
   const [currentSection, setCurrentSection] = useState(0);
-  const totalSections = 5;
+  const totalSections = 4;
 
 
   const scrollToSection = useCallback((sectionIndex) => {
@@ -21,7 +20,7 @@ const CreatePage = () => {
 
   const navigateToNext = useCallback(() => {
     if (currentSection < totalSections - 1) {
-      setCurrentSection(prev => {
+      setCurrentSection((prev) => {
         const newSection = prev + 1;
         scrollToSection(newSection);
         return newSection;

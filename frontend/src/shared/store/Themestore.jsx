@@ -68,8 +68,8 @@ const useThemeStore = create(set => ({
             titleColor: '#FF4500',
             subtitle: 'Embrace the vibrant autumn leaves with "Novel Stella. Embrace the vibrant autumn.',
             sidebarBg: '#f4c169f1',
-            buttonBackgroundColor: '#fdbe80',
-            buttonTextColor: '#D2691E',
+            buttonBackgroundColor: '#fbceb1',
+            buttonTextColor: '#CD853F',
             teamColor: '#8B4513',
             drinkColor: '#FF4500',
             neonEffect: {

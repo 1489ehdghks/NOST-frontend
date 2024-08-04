@@ -156,7 +156,39 @@ const SynopsysGenerator = ({ onComplete }) => {
     };
 
     const buttonClass = (selected, current) => selected.includes(current) ? 'selected' : '';
-
+    const customStyles = {
+        control: (provided) => ({
+            ...provided,
+            backgroundColor: currentTheme.buttonBackgroundColor,
+            color: currentTheme.buttonTextColor,
+            fontFamily: font.nomalFont,
+            zIndex: 10,
+        }),
+        menu: (provided) => ({
+            ...provided,
+            fontFamily: font.nomalFont,
+            backgroundColor: currentTheme.buttonBackgroundColor,
+            color: currentTheme.buttonTextColor,
+            zIndex: 10,
+        }),
+        singleValue: (provided) => ({
+            ...provided,
+            color: currentTheme.buttonTextColor,
+        }),
+        placeholder: (provided) => ({
+            ...provided,
+            color: currentTheme.buttonTextColor,
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isFocused ? 'white' : currentTheme.buttonBackgroundColor,
+            color: state.isFocused ? 'black' : currentTheme.buttonTextColor,
+            ':hover': {
+                backgroundColor: 'white',
+                color: 'black',
+            },
+        }),
+    };
     return (
         <div className="novel-generator section" style={{ fontFamily: font.shapeFont, backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <h1 className="synopsis-heading">New Novel</h1>
@@ -169,26 +201,7 @@ const SynopsysGenerator = ({ onComplete }) => {
                             value={selectedCountry}
                             onChange={handleCountryChange}
                             placeholder="Select a language..."
-                            styles={{
-                                control: (provided) => ({
-                                    ...provided,
-                                    backgroundColor: currentTheme.inputBackgroundColor,
-                                    color: currentTheme.textColor,
-                                    fontFamily: font.nomalFont,
-                                    zIndex: 10,
-                                }),
-                                menu: (provided) => ({
-                                    ...provided,
-                                    fontFamily: font.nomalFont,
-                                    color: currentTheme.textColor,
-                                    zIndex: 10,
-                                }),
-                                singleValue: (provided) => ({
-                                    ...provided,
-                                    color: currentTheme.textColor,
-
-                                }),
-                            }}
+                            styles={customStyles}
                         />
                     </div>
                     <div className="category">

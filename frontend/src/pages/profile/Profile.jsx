@@ -6,6 +6,7 @@ import axiosInstance from '../../shared/utils/AxiosInstance';
 import EditProfileModal from './EditProfileModal';
 import EditPasswordModal from './EditPasswordModal';
 import LikeBookList from './LikeBookList';
+import profileDefaultImage from "../../shared/asset/profile/profileDefaultImage.png";
 import './Profile.scss';
 
 const Profile = () => {
@@ -33,7 +34,7 @@ const Profile = () => {
   const [user, setUser] = useState({
     nickname: nickname || "네임",
     email: email || "메일",
-    profilePicture: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQT6uhVlGoDqJhKLfS9W_HQOoWJCf-_lsBZzw&s',
+    profilePicture: profileDefaultImage,
     likedPosts: [],
   });
 

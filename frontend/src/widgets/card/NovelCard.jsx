@@ -1,16 +1,34 @@
-import useBookStore from "../../shared/store/BookStore";
+import useThemeStore from "../../shared/store/Themestore";
+import SpringDefaultCard from "../../shared/asset/cardImage/SpringDefaultCard.png"
+import SummerDefaultCard from "../../shared/asset/cardImage/SummerDefaultCard.png"
+import FallDefaultCard from "../../shared/asset/cardImage/FallDefaultCard.png"
+import WinterDefaultCard from "../../shared/asset/cardImage/WinterDefaultCard.png"
+import config from "../../shared/utils/config";
+import { FaThumbsUp } from 'react-icons/fa';
+import "./NovelCard.scss";
 
-const NovelCard = ({ id, image, header, likes, rating, onClick }) => {
-    const title = useBookStore((state) => state.title);
+const NovelCard = ({ id, image, title, header, likes, rating, onClick }) => {
+    const { currentSeason } = useThemeStore();
+
+    const seasonImages = {
+        spring: SpringDefaultCard,
+        summer: SummerDefaultCard,
+        fall: FallDefaultCard,
+        winter: WinterDefaultCard,
+    };
+
     const formatTitle = (title) => title.split(' ').join('_');
-    const defaultImage = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQT6uhVlGoDqJhKLfS9W_HQOoWJCf-_lsBZzw&s'; // 기본 이미지 URL을 설정합니다.
-    const imageUrl = title ? `https://mynostbucket.s3.ap-northeast-2.amazonaws.com/books/${formatTitle(title)}.png` : defaultImage;
+    const formattedTitle = formatTitle(title);
+    const defaultImage = seasonImages[currentSeason];
+    const imageUrl = image ? `${config.NovelMainImageStorage}` + `/${formattedTitle}.png` : defaultImage;
+    console.log(`NovelCard image for id ${id}:`, imageUrl);
+
 
     return (
         <div className="card" style={{ backgroundImage: `url(${imageUrl})` }} onClick={() => onClick(id)}>
             <div className="card-header"><h1>{header}</h1></div>
             <div className="card-content">
-                <p> ❤️ {likes}</p>
+                <p> <FaThumbsUp /> {likes}</p>
                 <p>
                     {'⭐'.repeat(Math.min(Math.floor(rating), 5))}
                     {rating % 1 !== 0 ? (rating % 1 >= 0.5 ? '⭐' : '☆') : ''}
