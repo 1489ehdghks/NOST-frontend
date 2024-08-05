@@ -1,10 +1,10 @@
 .side-layout {
-    
-    display: flex ;
+    display: flex;
     height: 100vh;
-    background-color: transparent !important; // 최 상위로 올려서 배경 투명하게 만들기
+    background-color: transparent !important;
     z-index: 100;
-    .menu-icon {
+
+    .menu-toggle {
         position: fixed;
         top: 20px;
         left: 20px;
@@ -14,45 +14,63 @@
     }
 
     .sidebar {
-        z-index: 1;
         position: fixed;
         top: 0;
-        left: -200px;
-        width: 200px;
+        left: 0;
+        width: 60px; /* 기본 너비 */
         height: 100%;
-        background-color: #f0f0f0;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: left 0.3s ease;
-
-        button {
-            width: 100px;
-            padding: 10px;
-            margin: 10px 0;
-            cursor: pointer;
-            border: 1px solid #ffffff;
-            color: inherit;
-            background-color: inherit;
-            border-radius: 5px;
-
-            &:hover {
-                outline: none; //select 태그가 포커스를 받을 때 아웃라인제거
-                border-color: inherit;
-            }
-        }
+        align-items: flex-start;
+        justify-content: flex-start;
+        padding-top: 60px;
+        transition: width 0.3s ease-in-out;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        z-index: 20; /* 메뉴 아이콘보다 위에 위치 */
 
         &.open {
-            left: 0;
+            width: 240px; /* 열렸을 때 너비 */
+        }
+
+        .menu-item {
+            width: 200px;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition:
+                background-color 0.3s ease,
+                border-color 0.3s ease;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.5);
+            }
+
+            .menu-icon {
+                font-size: 1.5rem;
+                color: inherit; /* 아이콘 색상 상속 */
+            }
+            .menu-text {
+                margin-left: 10px; /* 아이콘과 텍스트 사이 간격 */
+
+                white-space: nowrap;
+                transition: opacity 0.3s ease;
+            }
+
+            &.visible .menu-text {
+                opacity: 1; /* 열렸을 때 텍스트 보임 */
+            }
+        }
+        .menu-item-bottom {
+            margin-top: auto; /* 하단으로 밀기 */
         }
     }
 
     .content {
-        margin-left: 200px;
+        margin-left: 60px;
         padding: 20px;
         flex-grow: 1;
-        transition: margin-left 0.3s ease;
+        transition: margin-left 0.3s ease-in-out;
 
         .book-list {
             display: flex;
@@ -73,9 +91,5 @@
                 }
             }
         }
-    }
-
-    .content:not(.open) {
-        margin-left: 0;
     }
 }

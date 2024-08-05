@@ -68,19 +68,19 @@ const SynopsysResult = ({ onComplete }) => {
             {currentPage === 1 && (
                 <div className="SynopsysResult-letter animate-fade-in" style={{ width: "50vw" }}>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.textColor }}>Title:</strong>
+                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Title:</strong>
                         <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTitle || ''} onChange={(e) => setEditableTitle(e.target.value)} />
                     </div>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.textColor }}>Genre:</strong>
+                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Genre:</strong>
                         <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableGenre || ''} onChange={(e) => setEditableGenre(e.target.value)} />
                     </div>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.textColor }}>Theme:</strong>
+                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Theme:</strong>
                         <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTheme || ''} onChange={(e) => setEditableTheme(e.target.value)} />
                     </div>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.textColor }}>Tone:</strong>
+                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Tone:</strong>
                         <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTone || ''} onChange={(e) => setEditableTone(e.target.value)} />
                     </div>
                     <div className="button-group first-page">
