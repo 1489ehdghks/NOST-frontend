@@ -8,7 +8,7 @@ import './SideLayout.scss';
 
 const SideLayout = ({ children }) => {
     const { themes, currentSeason } = useThemeStore();
-    const { user } = useAuthStore()
+    const { nickname } = useAuthStore()
     const currentTheme = themes[currentSeason];
     const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
@@ -66,7 +66,7 @@ const SideLayout = ({ children }) => {
                 </div>
                 <div className="menu-item " onClick={() => handleNavigation('/profile')}>
                     <FaUser className="menu-icon" />
-                    <span className="menu-text">{isOpen && user.nickname}</span>
+                    <span className="menu-text">{isOpen && nickname}</span>
                 </div>
                 <div className="menu-item " onClick={() => handleNavigation('/profile')}>
                     <FaUser className="menu-icon" />

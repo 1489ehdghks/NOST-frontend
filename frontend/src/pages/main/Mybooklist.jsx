@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NovelCard from '../../widgets/card/NovelCard';
 import useThemeStore from '../../shared/store/Themestore';
-import { fetchUserBookList } from '../../features/novel/BooklistInstance';
+import { getUserNovelInstance } from '../../features/novel/UserNovelInstance';
 import './Mybooklist.scss';
 
 
@@ -17,7 +17,7 @@ const Mybooklist = () => {
 
   useEffect(() => {
     const fetchBooks = async () => {
-      const response = await fetchUserBookList();
+      const response = await getUserNovelInstance();
       if (response.success) {
         setMyBooks(response.data);
       } else {

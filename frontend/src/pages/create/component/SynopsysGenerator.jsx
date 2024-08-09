@@ -4,7 +4,7 @@ import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import useBookStore from '../../../shared/store/BookStore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import useThemeStore from '../../../shared/store/Themestore';
-import { generateSynopsis } from '../../../features/novel/SynopsysInstance';
+import { generateSynopsis } from '../../../features/novel/GenerateNovelInstance';
 import Select from 'react-select';
 import countries from 'i18n-iso-countries';
 import enLocale from 'i18n-iso-countries/langs/en.json';

@@ -3,7 +3,7 @@ import useBookStore from '../../../shared/store/BookStore';
 import useThemeStore from '../../../shared/store/Themestore';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import './SynopsysResult.scss';
-import { deleteSynopsys, generateSynopsys } from '../../../features/novel/SynopsysResultInstance';
+import { deleteSynopsys, generatePrologue } from '../../../features/novel/GenerateNovelInstance';
 
 const SynopsysResult = ({ onComplete }) => {
     const { title, genre, theme, tone, setting, characters, bookId, language, setPrologue, setTranslatedPrologue, setChapterNum, setBookId } = useBookStore();
@@ -47,7 +47,7 @@ const SynopsysResult = ({ onComplete }) => {
             const deleteResponse = await deleteSynopsys(bookId);
             if (!deleteResponse.success) throw new Error('Failed to delete prologue');
 
-            const response = await generateSynopsys(bookId, prompt, language.value);
+            const response = await generatePrologue(bookId, prompt, language.value);
             if (!response.success) throw new Error('Failed to generate prologue');
 
             const { data } = response;

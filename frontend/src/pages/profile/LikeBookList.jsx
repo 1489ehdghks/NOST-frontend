@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useThemeStore from '../../../src/shared/store/Themestore';
-import axiosInstance from '../../shared/utils/AxiosInstance';
+import { getUserLikedNovelInstance } from '../../features/novel/UserNovelInstance';
 import './LikeBookList.scss';
 
 const LikeBookList = () => {
@@ -14,16 +14,16 @@ const LikeBookList = () => {
 
 
     useEffect(() => {
-        const UserLikedBooks = async () => {
-            try {
-                const response = await axiosInstance.get('https://nost-stella.com/api/books/userlikedbooks/');
+        const fetchUserLikedBooks = async () => {
+            const response = await getUserLikedNovelInstance();
+            if (response.success) {
                 setLikedBooks(response.data);
-            } catch (error) {
-                console.error('Error fetching liked books:', error);
+            } else {
+                console.error('Error fetching liked books:', response.errors);
             }
         };
 
-        UserLikedBooks();
+        fetchUserLikedBooks();
     }, []);
 
     useEffect(() => {

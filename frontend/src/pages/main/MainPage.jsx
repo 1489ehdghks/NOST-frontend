@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useThemeStore from '../../shared/store/Themestore';
 import useGlobalStore from '../../shared/store/GlobalStore';
 import useAuthStore from '../../shared/store/AuthStore';
-import { fetchBooks } from '../../features/novel/NovelListInstance';
+import { getNovel } from '../../features/novel/UserNovelInstance';
 import NovelCard from '../../widgets/card/NovelCard';
 import SideLayout from '../../widgets/layout/sideLayout/SideLayout';
 import './MainPage.scss';
@@ -26,7 +26,8 @@ const MainPage = () => {
 
     useEffect(() => {
         const fetchNovels = async () => {
-            const response = await fetchBooks();
+            const response = await getNovel();
+
             if (response.success) {
                 let filteredNovels = response.data;
                 console.log("filteredNovels:", filteredNovels)

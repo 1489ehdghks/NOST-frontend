@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './SummaryGenerator.scss';
 import useThemeStore from '../../../shared/store/Themestore';
 import useBookStore from '../../../shared/store/BookStore';
-import { deletePrologue, generatePrologue, generateSummary } from '../../../features/novel/SummaryInstance'; // 수정된 부분
+import { deletePrologue, generatePrologue, generateSummary } from '../../../features/novel/GenerateNovelInstance';
 import useGlobalStore from '../../../shared/store/GlobalStore';
 import Prologue from './summaryGeneratorComponent/Prologue';
 import Summary from './summaryGeneratorComponent/Summary';
