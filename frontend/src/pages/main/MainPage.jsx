@@ -4,12 +4,16 @@ import useThemeStore from '../../shared/store/Themestore';
 import useGlobalStore from '../../shared/store/GlobalStore';
 import useAuthStore from '../../shared/store/AuthStore';
 import { getNovel } from '../../features/novel/UserNovelInstance';
+import { searchNovelByTag } from '../../features/novel/SearchInstance';
 import NovelCard from '../../widgets/card/NovelCard';
 import SideLayout from '../../widgets/layout/sideLayout/SideLayout';
+import SearchBar from '../../widgets/book/BookSearchbar';
 import './MainPage.scss';
 
 const MainPage = () => {
     const { font, themes, currentSeason } = useThemeStore();
+    const { isLoading } = useGlobalStore();
+    const { userId: currentUserId } = useAuthStore();
     const currentTheme = themes[currentSeason];
     const [sortOption, setSortOption] = useState('newest');
     const [novels, setNovels] = useState([]);
@@ -20,8 +24,6 @@ const MainPage = () => {
     const [currentPageNovelShowcase, setCurrentPageNovelShowcase] = useState(1);
     const novelsPerPageMyNovels = showMoreMyNovels ? 20 : 5;
     const novelsPerPageNovelShowcase = showMoreNovelShowcase ? 20 : 5;
-    const { isLoading } = useGlobalStore();
-    const { userId: currentUserId } = useAuthStore();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -30,7 +32,6 @@ const MainPage = () => {
 
             if (response.success) {
                 let filteredNovels = response.data;
-                console.log("filteredNovels:", filteredNovels)
                 sortNovels(filteredNovels, sortOption);
                 setNovels(filteredNovels);
                 setMyNovels(response.data.filter(novel => novel.user_id === currentUserId));
@@ -42,9 +43,25 @@ const MainPage = () => {
         fetchNovels();
     }, [sortOption, currentUserId]);
 
+    const handleSearch = async (query) => {
+        const response = await searchNovelByTag(query);
+        if (response.success) {
+            setNovels(response.data);
+        }
+    };
+
     const handleSortChange = useCallback((e) => {
         const { value } = e.target;
         setSortOption(value);
+    }, []);
+
+    const handleTagClick = useCallback(async (tag) => {
+        const response = await searchNovelByTag(tag);
+        if (response.success) {
+            setNovels(response.data);
+        } else {
+            setNovels([]);
+        }
     }, []);
 
     const sortNovels = useCallback((novels, criteria) => {
@@ -53,10 +70,10 @@ const MainPage = () => {
                 novels.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 break;
             case 'popular':
-                novels.sort((a, b) => b.is_liked.length - a.is_liked.length);
+                novels.sort((a, b) => (b.is_liked?.length || 0) - (a.is_liked?.length || 0));
                 break;
             case 'rating':
-                novels.sort((a, b) => b.average_rating - a.average_rating);
+                novels.sort((a, b) => (b.average_rating || 0) - (a.average_rating || 0));
                 break;
             case 'userbooks':
                 novels.sort((a, b) => a.user_id === currentUserId ? -1 : 1);
@@ -109,6 +126,7 @@ const MainPage = () => {
     return (
         <div className="mainPage" style={{ backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <SideLayout>
+                <SearchBar onSearch={handleSearch} />
                 <div className='myNovelList'>
                     <div className="listHeader">
                         <h1 style={{ color: currentTheme.themeTextColor, textShadow: currentTheme.neonEffect.titleTextShadow, fontFamily: font.nomalFont }}>My Novel</h1>
@@ -124,8 +142,10 @@ const MainPage = () => {
                                 title={novel.title}
                                 image={novel.image}
                                 header={novel.title}
-                                likes={novel.is_liked.length}
-                                rating={novel.average_rating}
+                                likes={novel.is_liked?.length || 0}
+                                rating={novel.average_rating || 0}
+                                tags={novel.tags} // Pass the tags to the NovelCard
+                                onTagClick={handleTagClick} // Pass the tag click handler
                                 onClick={() => handleNovelClick(novel.id)}
                             />
                         ))}
@@ -167,8 +187,10 @@ const MainPage = () => {
                                 title={novel.title}
                                 image={novel.image}
                                 header={novel.title}
-                                likes={novel.is_liked.length}
-                                rating={novel.average_rating}
+                                likes={novel.is_liked?.length || 0}
+                                rating={novel.average_rating || 0}
+                                tags={novel.tags} // Pass the tags to the NovelCard
+                                onTagClick={handleTagClick} // Pass the tag click handler
                                 onClick={() => handleNovelClick(novel.id)}
                             />
                         ))}

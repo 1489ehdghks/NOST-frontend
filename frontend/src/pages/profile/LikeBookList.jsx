@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useThemeStore from '../../../src/shared/store/Themestore';
+import useThemeStore from '../../shared/store/Themestore';
 import { getUserLikedNovelInstance } from '../../features/novel/UserNovelInstance';
 import './LikeBookList.scss';
 

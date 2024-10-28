@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import SideLayout from '../../widgets/layout/sideLayout/SideLayout';
 import SynopsysGenerator from './component/SynopsysGenerator';

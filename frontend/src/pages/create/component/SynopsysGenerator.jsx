@@ -12,11 +12,11 @@ import enLocale from 'i18n-iso-countries/langs/en.json';
 countries.registerLocale(enLocale);
 
 const customCountryCodeMapping = {
-    KO: 'KO',
-    US: 'EN-US',
-    GB: 'EN-GB',
-    JP: 'JA',
-    CN: 'ZH'
+    KO: 'Korean',
+    US: 'English-US',
+    GB: 'English-UK',
+    JP: 'Japanese',
+    CN: 'Chinese'
 };
 
 const customCountryNames = {
@@ -71,24 +71,33 @@ const SynopsysGenerator = ({ onComplete }) => {
     const { font, themes, currentSeason } = useThemeStore();
     const currentTheme = themes[currentSeason];
     const [selectedGenres, setSelectedGenres] = useState([]);
-    const [selectedEra, setSelectedEra] = useState('');
+    const [selectedEra, setSelectedEra] = useState(null);
     const [selectedDetails, setSelectedDetails] = useState([]);
     const [userRequests, setUserRequests] = useState('');
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [showGenres, setShowGenres] = useState(true);
     const [showEras, setShowEras] = useState(true);
     const [showDetails, setShowDetails] = useState(true);
+    console.log("selectedGenres:", selectedEra)
 
-    const handleGenreChange = (prompt) => {
-        setSelectedGenres((prev) => prev.includes(prompt) ? prev.filter((g) => g !== prompt) : [...prev, prompt]);
+    const handleGenreChange = (genre) => {
+        setSelectedGenres((prev) =>
+            prev.some((g) => g.label === genre.label)
+                ? prev.filter((g) => g.label !== genre.label)
+                : [...prev, genre]
+        );
     };
 
-    const handleEraChange = (prompt) => {
-        setSelectedEra((prev) => (prev === prompt ? '' : prompt));
+    const handleEraChange = (era) => {
+        setSelectedEra((prev) => (prev && prev.label === era.label ? null : era));
     };
 
-    const handleDetailChange = (prompt) => {
-        setSelectedDetails((prev) => prev.includes(prompt) ? prev.filter((s) => s !== prompt) : [...prev, prompt]);
+    const handleDetailChange = (detail) => {
+        setSelectedDetails((prev) =>
+            prev.some((d) => d.label === detail.label)
+                ? prev.filter((d) => d.label !== detail.label)
+                : [...prev, detail]
+        );
     };
 
     const handleCountryChange = (selectedOption) => {
@@ -98,8 +107,10 @@ const SynopsysGenerator = ({ onComplete }) => {
     const fetchSynopsis = async (requestData, retries = 0) => {
         try {
             console.log("Attempting fetchSynopsis, retry:", retries);
+            console.log("requestData, retry:", requestData);
             const response = await generateSynopsis(requestData);
             const content = response.data.content;
+            console.log("requestData requestData:", requestData);
 
             console.log("response received:", response);
 
@@ -144,16 +155,31 @@ const SynopsysGenerator = ({ onComplete }) => {
         }
 
         setLanguage(selectedCountry);
-        const formattedDetails = `The time period setting is ${selectedEra}. The genre is ${selectedGenres.join(', ')} with ${selectedDetails.join(', ')}. ${userRequests}`;
+
+        const genrePrompts = selectedGenres.map((genre) => genre.prompt);
+        const detailPrompts = selectedDetails.map((detail) => detail.prompt);
+        const eraPrompt = selectedEra ? selectedEra.prompt : '';
+
+        const formattedDetails = `The time period setting is ${eraPrompt}. The genre is ${genrePrompts.join(', ')} with ${detailPrompts.join(', ')}. ${userRequests}`;
+
+        const tags = [
+            ...selectedGenres.map((genre) => genre.label),
+            selectedEra ? selectedEra.label : null,
+            ...selectedDetails.map((detail) => detail.label)
+        ].filter(Boolean); // Null 또는 undefined를 제거
+
+        // requestData가 문자열로 구성된 prompt 필드를 포함
         const requestData = {
             prompt: formattedDetails.trim(),
-            language: selectedCountry ? selectedCountry.value : null
+            language: selectedCountry ? selectedCountry.value : null,
+            tags: tags  // 태그로 사용할 데이터는 label 값
         };
 
         console.log("requestData created:", requestData);
 
         fetchSynopsis(requestData);
     };
+
 
     const buttonClass = (selected, current) => selected.includes(current) ? 'selected' : '';
     const customStyles = {
@@ -189,6 +215,7 @@ const SynopsysGenerator = ({ onComplete }) => {
             },
         }),
     };
+
     return (
         <div className="novel-generator section" style={{ fontFamily: font.shapeFont, backgroundColor: currentTheme.mainpageBackgroundColor, color: currentTheme.textColor }}>
             <h1 className="synopsis-heading">New Novel</h1>
@@ -213,20 +240,20 @@ const SynopsysGenerator = ({ onComplete }) => {
                             </div>
                             {showEras && (
                                 <div className="buttons">
-                                    {eras.map(({ label, prompt }) => (
+                                    {eras.map((era) => (
                                         <button
-                                            key={label}
+                                            key={era.label}
                                             type="button"
-                                            className={`synopsis-button ${selectedEra === prompt ? 'selected' : ''}`}
-                                            onClick={() => handleEraChange(prompt)}
-                                            data-prompt={prompt}
+                                            className={`synopsis-button ${selectedEra && selectedEra.label === era.label ? 'selected' : ''}`}
+                                            onClick={() => handleEraChange(era)}
+                                            data-prompt={era.prompt}
                                             style={{
-                                                backgroundColor: selectedEra === prompt ? currentTheme.additionalColors : currentTheme.buttonBackgroundColor,
+                                                backgroundColor: selectedEra && selectedEra.label === era.label ? currentTheme.buttonTextColor : currentTheme.buttonBackgroundColor,
+                                                color: selectedEra && selectedEra.label === era.label ? currentTheme.buttonBackgroundColor : currentTheme.buttonTextColor,
                                                 borderColor: currentTheme.additionalColors,
-                                                color: selectedEra === prompt ? 'white' : currentTheme.buttonTextColor,
                                             }}
                                         >
-                                            {label}
+                                            {era.label}
                                         </button>
                                     ))}
                                 </div>
@@ -240,20 +267,20 @@ const SynopsysGenerator = ({ onComplete }) => {
                             </div>
                             {showGenres && (
                                 <div className="buttons">
-                                    {genres.map(({ label, prompt }) => (
+                                    {genres.map((genre) => (
                                         <button
-                                            key={label}
+                                            key={genre.label}
                                             type="button"
-                                            className={`synopsis-button ${buttonClass(selectedGenres, prompt)}`}
-                                            onClick={() => handleGenreChange(prompt)}
-                                            data-prompt={prompt}
+                                            className={`synopsis-button ${selectedGenres.some((g) => g.label === genre.label) ? 'selected' : ''}`}
+                                            onClick={() => handleGenreChange(genre)}
+                                            data-prompt={genre.prompt}
                                             style={{
-                                                backgroundColor: selectedGenres.includes(prompt) ? currentTheme.additionalColors : currentTheme.buttonBackgroundColor,
+                                                backgroundColor: selectedGenres.some((g) => g.label === genre.label) ? currentTheme.buttonTextColor : currentTheme.buttonBackgroundColor,
+                                                color: selectedGenres.some((g) => g.label === genre.label) ? currentTheme.buttonBackgroundColor : currentTheme.buttonTextColor,
                                                 borderColor: currentTheme.additionalColors,
-                                                color: selectedGenres.includes(prompt) ? 'white' : currentTheme.buttonTextColor,
                                             }}
                                         >
-                                            {label}
+                                            {genre.label}
                                         </button>
                                     ))}
                                 </div>
@@ -267,20 +294,20 @@ const SynopsysGenerator = ({ onComplete }) => {
                             </div>
                             {showDetails && (
                                 <div className="buttons">
-                                    {details.map(({ label, prompt }) => (
+                                    {details.map((detail) => (
                                         <button
-                                            key={label}
+                                            key={detail.label}
                                             type="button"
-                                            className={`synopsis-button ${buttonClass(selectedDetails, prompt)}`}
-                                            onClick={() => handleDetailChange(prompt)}
-                                            data-prompt={prompt}
+                                            className={`synopsis-button ${selectedDetails.some((d) => d.label === detail.label) ? 'selected' : ''}`}
+                                            onClick={() => handleDetailChange(detail)}
+                                            data-prompt={detail.prompt}
                                             style={{
-                                                backgroundColor: selectedDetails.includes(prompt) ? currentTheme.additionalColors : currentTheme.buttonBackgroundColor,
+                                                backgroundColor: selectedDetails.some((d) => d.label === detail.label) ? currentTheme.buttonTextColor : currentTheme.buttonBackgroundColor,
+                                                color: selectedDetails.some((d) => d.label === detail.label) ? currentTheme.buttonBackgroundColor : currentTheme.buttonTextColor,
                                                 borderColor: currentTheme.additionalColors,
-                                                color: selectedDetails.includes(prompt) ? 'white' : currentTheme.buttonTextColor,
                                             }}
                                         >
-                                            {label}
+                                            {detail.label}
                                         </button>
                                     ))}
                                 </div>

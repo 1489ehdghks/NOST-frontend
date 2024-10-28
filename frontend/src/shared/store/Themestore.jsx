@@ -1,32 +1,43 @@
 import { create } from 'zustand';
-import spring from '../asset/image/spring.avif'
-import summer from '../asset/image/summer.jpg'
-import autumn from '../asset/image/autumn.avif'
-import winter from '../asset/image/winter.avif'
+import spring from '../asset/image/spring.png'
+import springLow from '../asset/image/spring_low.jpg'
+import springCard from '../../shared/asset/cardImage/spring.png'
+import summer from '../asset/image/summer.png'
+import summerLow from '../asset/image/summer_low.jpg'
+import summerCard from '../../shared/asset/cardImage/fallenRain.png'
+import autumn from '../asset/image/autumn.png'
+import autumnLow from '../asset/image/autumn_low.jpg'
+import autumnCard from '../../shared/asset/cardImage/fall.png'
+import winter from '../asset/image/winter.png'
+import winterLow from '../asset/image/winter_low.jpg'
+import winterCard from '../../shared/asset/cardImage/winter.png'
+import { preloadImage, validateSeason } from '../utils/ThemeUtils';
 
-const useThemeStore = create(set => ({
+const useThemeStore = create((setState, getState) => ({
     currentSeason: 'spring',
     canChangeTheme: true,
-    setSeason: (season) => set({ currentSeason: season }),
-    setCanChangeTheme: (canChangeTheme) => set({ canChangeTheme }),
+    isLoading: false,
+    loadedImages: new Set(),
+
+    // 폰트 설정
     font: {
-        shapeFont: "'Nanum Myeongjo', serif", //중요한 부분.섹시한 폰트
-        nomalFont: "Averia Gruesa Libre, system-ui", //봄
-        nomalFont2: "Indie Flower, cursive", //normalFont보다 장난기 있는 폰트
-        popFont: "Permanent Marker, cursive", //팝송에서 자주 본 폰트
-        rockFont: "Rock Salt, cursive",  //여름, -team NOST
-        rockFont2: "Zeyada, cursive", //rockFont보다 필기체 느낌이 강함. 내용으로 하면 어울릴듯
-        scaryFont: "Creepster, system-ui", //장난스러운 공포 부분
-        thickFont: "Poetsen One, sans-serif", //재밋는 부분. 약간 두꺼움
-        titanFont: "Titan One, sans-serif", //포스터 느낌 매우 두꺼움
+        shapeFont: "'Nanum Myeongjo', serif",
+        nomalFont: "Averia Gruesa Libre, system-ui",
+        nomalFont2: "Indie Flower, cursive",
+        popFont: "Permanent Marker, cursive",
+        rockFont: "Rock Salt, cursive",
+        rockFont2: "Zeyada, cursive",
+        scaryFont: "Creepster, system-ui",
+        thickFont: "Poetsen One, sans-serif",
+        titanFont: "Titan One, sans-serif",
     },
 
-
-    ///봄,#f0cfd5
-
+    // 테마 설정
     themes: {
         spring: {
             background: spring,
+            lowBackground: springLow,
+            cardbackground: springCard,
             defaultTextColor: '#DB7093',
             themeTextColor: '#ffffff',
             blackColor: '#000000',
@@ -34,7 +45,6 @@ const useThemeStore = create(set => ({
             titleColor: '#FF69B4',
             subtitle: 'Experience the rebirth of nature with Novel Stella. Experience the rebirth of nature.',
             sidebarBg: '#FFD1DC',
-
             buttonBackgroundColor: '#FFEBEE',
             buttonTextColor: '#DB7093',
             teamColor: '#000',
@@ -46,6 +56,8 @@ const useThemeStore = create(set => ({
         },
         summer: {
             background: summer,
+            lowBackground: summerLow,
+            cardbackground: summerCard,
             defaultTextColor: '#e0c7ff',
             themeTextColor: '#ffffff',
             blackColor: '#000000',
@@ -64,12 +76,14 @@ const useThemeStore = create(set => ({
         },
         autumn: {
             background: autumn,
+            lowBackground: autumnLow,
+            cardbackground: autumnCard,
             defaultTextColor: '#8B4513',
             themeTextColor: '#ffffff',
             blackColor: '#000000',
             homepageBackgroundColor: '#FFE4B5',
             titleColor: '#FF4500',
-            subtitle: 'Embrace the vibrant autumn leaves with "Novel Stella. Embrace the vibrant autumn.',
+            subtitle: 'Embrace the vibrant autumn leaves with Novel Stella. Embrace the vibrant autumn.',
             sidebarBg: '#f4c169f1',
             buttonBackgroundColor: '#fbceb1',
             buttonTextColor: '#CD853F',
@@ -82,6 +96,8 @@ const useThemeStore = create(set => ({
         },
         winter: {
             background: winter,
+            lowBackground: winterLow,
+            cardbackground: winterCard,
             defaultTextColor: '#ffffff',
             themeTextColor: '#ffffff',
             blackColor: '#000000',
@@ -98,7 +114,60 @@ const useThemeStore = create(set => ({
                 titleTextShadow: '0 0 5px #00CED1, 0 0 10px #00CED1, 0 0 15px #00CED1',
             }
         }
+    },
+
+    // 액션
+    setSeason: async (season) => {
+        const store = getState();
+
+        if (!validateSeason(season)) {
+            console.error('Invalid season:', season);
+            return;
+        }
+
+        if (!store.canChangeTheme || store.currentSeason === season) return;
+
+        setState({ isLoading: true, canChangeTheme: false });
+
+        try {
+            setState({ currentSeason: season });
+
+            if (!store.loadedImages.has(season)) {
+                await preloadImage(store.themes[season].background);
+                store.loadedImages.add(season);
+            }
+
+            setTimeout(() => {
+                setState({
+                    isLoading: false,
+                    canChangeTheme: true
+                });
+            }, 1000);
+
+        } catch (error) {
+            console.error('Failed to load theme images:', error);
+            setState({
+                isLoading: false,
+                canChangeTheme: true
+            });
+        }
+    },
+
+    setCanChangeTheme: (canChange) => setState({ canChangeTheme: canChange }),
+
+    // 초기화
+    initializeTheme: async () => {
+        const store = getState();
+        try {
+            await preloadImage(store.themes[store.currentSeason].background);
+            store.loadedImages.add(store.currentSeason);
+        } catch (error) {
+            console.error('Failed to load initial theme:', error);
+        }
     }
 }));
+
+// 초기 테마 이미지 프리로드
+useThemeStore.getState().initializeTheme();
 
 export default useThemeStore;

@@ -71,21 +71,48 @@ const LoginModal = ({ onClose }) => {
         setInputs({ ...inputs, [name]: value });
         validateInput(name, value);
     };
+
     const validateInput = (name, value) => {
         let isValid = false;
+        let message = '';
+
         if (name === 'loginEmail' || name === 'signupEmail') {
             isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+            message = "Please provide a valid email address.";
         } else if (name === 'loginPassword' || name === 'signupPassword1') {
-            const hasLowercase = /[a-z]/.test(value);
-            const hasUppercase = /[A-Z]/.test(value);
-            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-            const validConditions = [hasLowercase, hasUppercase, hasSpecial].filter(Boolean).length >= 2;
-            isValid = value.length >= 8 && validConditions;
+            const conditions = {
+                length: value.length >= 8,
+                lowercase: /[a-z]/.test(value),
+                uppercase: /[A-Z]/.test(value),
+                number: /\d/.test(value),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(value)
+            };
+
+            const satisfiedConditions = [
+                conditions.lowercase,
+                conditions.uppercase,
+                conditions.number,
+                conditions.special
+            ].filter(Boolean).length;
+
+            isValid = conditions.length && satisfiedConditions >= 2;
+
+            if (!isValid) {
+                message = conditions.length ?
+                    "Password must contain at least 2: lowercase, uppercase, numbers, or special characters" :
+                    "Password must be at least 8 characters long";
+            }
         } else if (name === 'signupPassword2') {
             isValid = value === inputs.signupPassword1;
+            message = "Passwords must match";
         }
-        setInputValidities({ ...inputValidities, [name]: isValid });
-        setTooltip({ ...tooltip, [name]: true });
+
+        setInputValidities(prev => ({ ...prev, [name]: isValid }));
+        setTooltip(prev => ({
+            ...prev,
+            [name]: true,
+            message: isValid ? "Valid" : message
+        }));
     };
 
 
@@ -161,6 +188,8 @@ const LoginModal = ({ onClose }) => {
                                         onFocus={() => setTooltip({ ...tooltip, loginEmail: true })}
                                         onBlur={() => setTooltip({ ...tooltip, loginEmail: false })}
                                         disabled={isLoading}
+                                        autoComplete="off"
+
                                     />
 
                                 </div>
@@ -176,6 +205,7 @@ const LoginModal = ({ onClose }) => {
                                         onFocus={() => setTooltip({ ...tooltip, loginPassword: true })}
                                         onBlur={() => setTooltip({ ...tooltip, loginPassword: false })}
                                         disabled={isLoading}
+                                        autoComplete="new-password"
                                     />
 
                                 </div>
@@ -215,7 +245,7 @@ const LoginModal = ({ onClose }) => {
                                         onChange={handleInputChange}
                                         onFocus={() => setTooltip({ ...tooltip, signupEmail: true })}
                                         onBlur={() => setTooltip({ ...tooltip, signupEmail: false })}
-                                        autoComplete="new-email"
+                                        autoComplete="off"
                                         disabled={isLoading}
                                     />
                                     <Tooltip

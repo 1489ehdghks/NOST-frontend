@@ -1,34 +1,68 @@
 .theme-mode-toggle {
     display: flex;
-    justify-content: space-around;
-    width: 90%;
-    padding: 0.7em;
-    background: transparent;
-    border-radius: 1em;
-    // box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.1);
+    gap: 1rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(4px);
 
     .season-icon {
-        background: transparent;
+        position: relative;
+        width: 2.5rem;
+        height: 2.5rem;
         border: none;
-        font-size: 1.5em;
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
         cursor: pointer;
-        transition:
-            transform 250ms,
-            color 250ms;
-        color: #ccc;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg {
+            width: 1.2rem;
+            height: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        &:hover:not(.disabled) {
+            background: #ffbb52;
+
+            svg {
+                transform: scale(1.6);
+            }
+        }
 
         &.active {
-            color: #ffbb52;
-            transform: scale(1.2);
+            background: #ffbb52;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+
+            svg {
+                transform: scale(1.2);
+            }
         }
 
-        &:hover {
-            transform: scale(1.4);
-            color: #ffbb52;
-        }
+        &.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
 
-        &:focus {
-            outline: none;
+            &:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
         }
+    }
+
+    // 스크린 리더를 위한 숨김 텍스트
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
 }

@@ -56,18 +56,45 @@
         box-sizing: border-box;
         text-align: left;
         position: absolute;
-        bottom: 1rem;
+        bottom: 0.5rem;
         left: 0;
         right: 0;
         z-index: 2;
-        max-height: 6rem;
+        max-height: 7rem;
+        overflow: visible;
 
         p {
-            margin: 0;
+            padding-bottom: 6px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+
+            .tag {
+                background-color: rgba(255, 255, 255, 0.8);
+                border: none;
+                border-radius: 5px;
+                padding: 4px 8px;
+                margin: 0;
+                font-size: 0.8em;
+                color: #333;
+                cursor: pointer;
+                transition:
+                    background-color 0.3s ease,
+                    transform 0.2s ease;
+
+                &:hover {
+                    background-color: #ddd;
+                    transform: scale(1.05);
+                }
+            }
         }
     }
+
     &:hover .card-header {
-        transform: translateY(-50%);
+        bottom: 15%;
     }
 
     &:hover .card-content {

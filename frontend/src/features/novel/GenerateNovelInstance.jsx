@@ -10,6 +10,7 @@ export const generateSynopsis = async (requestData) => {
     try {
         const response = await axiosInstance.post('/api/books/', requestData);
         const data = response.data;
+        console.log("response:", response)
         setIsLoading(false);
         return { success: true, data };
     } catch (error) {

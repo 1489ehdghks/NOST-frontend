@@ -36,7 +36,7 @@ function App() {
       setCanChangeTheme(false);
       setTimeout(() => {
         setCanChangeTheme(true);
-      }, 1000);
+      }, 3000);
     }
   };
 
@@ -45,7 +45,7 @@ function App() {
       {isLoading && <Loading />}
       <div className={`App ${currentSeason}`}>
         <div className="theme-toggles">
-          <ThemeMode currentSeason={currentSeason} setSeason={handleSeasonChange} />
+          <ThemeMode currentSeason={currentSeason} setSeason={handleSeasonChange} disabled={!canChangeTheme} />
         </div>
         <div className="background">
           <BrowserRouter>

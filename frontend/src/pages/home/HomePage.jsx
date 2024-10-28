@@ -10,30 +10,50 @@ const HomePage = () => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [currentImage, setCurrentImage] = useState(themes[currentSeason].background);
   const [nextImage, setNextImage] = useState(null);
-
+  const currentTheme = themes[currentSeason];
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
   useEffect(() => {
-    const highResImage = themes[currentSeason].background;
+    let isCurrentTransition = true;  // 현재 전환 유효성 체크용
 
-    const highQualityImg = new Image();
-    highQualityImg.src = highResImage;
-    highQualityImg.onload = () => {
-      setNextImage(highResImage);
+    // 1. 저화질 이미지 미리 로드
+    const preloadLowResImage = new Image();
+    preloadLowResImage.src = themes[currentSeason].lowBackground;
+
+    preloadLowResImage.onload = () => {
+      if (!isCurrentTransition) return;
+
+      // 2. 저화질 이미지로 애니메이션 시작
+      setNextImage(themes[currentSeason].lowBackground);
+
+      // 3. 애니메이션 완료 후 처리
+      const animationTimeout = setTimeout(() => {
+        if (!isCurrentTransition) return;
+
+        setCurrentImage(themes[currentSeason].lowBackground);
+        setNextImage(null);
+
+        // 4. 고화질 이미지 로드 시작
+        const highQualityImg = new Image();
+        highQualityImg.src = themes[currentSeason].background;
+
+        highQualityImg.onload = () => {
+          if (!isCurrentTransition) return;
+          setCurrentImage(themes[currentSeason].background);
+        };
+      }, 700);
+
+      return () => {
+        clearTimeout(animationTimeout);
+        isCurrentTransition = false;
+      };
+    };
+
+    return () => {
+      isCurrentTransition = false;
     };
   }, [currentSeason, themes]);
-
-  useEffect(() => {
-    if (nextImage) {
-      const timeout = setTimeout(() => {
-        setCurrentImage(nextImage);
-        setNextImage(null);
-      }, 1000); // 애니메이션 지속 시간과 동일하게 설정
-
-      return () => clearTimeout(timeout);
-    }
-  }, [nextImage]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -47,8 +67,6 @@ const HomePage = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
-
-  const currentTheme = themes[currentSeason];
 
   return (
     <div className="homePage">

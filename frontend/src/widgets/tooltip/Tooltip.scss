@@ -1,44 +1,114 @@
-// src/components/Tooltip.scss
 .tooltip {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px);
     left: 0;
-    background-color: #333;
-    color: #fff;
-    border-radius: 4px;
-    padding: 10px;
-    margin-top: 5px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: calc(100% - 32px);
     max-width: 300px;
     justify-content: space-between;
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e2e8f0;
+
+    // 유효성 상태에 따른 스타일
+    &.valid {
+        border-left: 4px solid #10b981;
+        .tooltip-icon {
+            color: #10b981;
+            .check-icon {
+                animation: scaleIn 0.2s ease-out;
+            }
+        }
+    }
+
+    &.invalid {
+        border-left: 4px solid #ef4444;
+        .tooltip-icon {
+            color: #ef4444;
+            .x-icon {
+                animation: scaleIn 0.2s ease-out;
+            }
+        }
+    }
+
+    // 보이기/숨기기 애니메이션
+    &.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
 
     .tooltip-content {
         display: flex;
         align-items: center;
+        gap: 8px;
+        flex: 1;
     }
 
     .tooltip-icon {
-        font-size: 1.2rem;
-        margin-right: 10px;
         display: flex;
         align-items: center;
+        justify-content: center;
     }
 
     .tooltip-message {
-        font-size: 0.9rem;
-        line-height: 1.2;
+        white-space: pre-line;
+        font-size: 0.875rem;
+        color: #1f2937;
+        line-height: 1.4;
+        font-weight: 400;
     }
 
     .tooltip-close {
         background: none;
         border: none;
-        color: #fff;
-        font-size: 1rem;
-        margin-left: 10px;
+        color: #6b7280;
+        font-size: 1.25rem;
+        padding: 4px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s ease;
+        margin-left: 8px;
+
+        &:hover {
+            color: #374151;
+        }
+    }
+
+    // 애니메이션 키프레임
+    @keyframes scaleIn {
+        0% {
+            transform: scale(0);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    // 말풍선 화살표
+    &::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 16px;
+        width: 12px;
+        height: 12px;
+        background-color: inherit;
+        border-left: 1px solid #e2e8f0;
+        border-top: 1px solid #e2e8f0;
+        transform: rotate(45deg);
     }
 }

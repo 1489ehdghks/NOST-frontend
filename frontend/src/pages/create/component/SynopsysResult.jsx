@@ -18,7 +18,7 @@ const SynopsysResult = ({ onComplete }) => {
     const [editableTone, setEditableTone] = useState(tone);
     const [editableSetting, setEditableSetting] = useState(setting);
     const [editableCharacters, setEditableCharacters] = useState(characters);
-
+    console.log("Seasontheme:", Seasontheme)
 
 
     useEffect(() => {
@@ -68,20 +68,20 @@ const SynopsysResult = ({ onComplete }) => {
             {currentPage === 1 && (
                 <div className="SynopsysResult-letter animate-fade-in" style={{ width: "50vw" }}>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Title:</strong>
-                        <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTitle || ''} onChange={(e) => setEditableTitle(e.target.value)} />
+                        <strong className="SynopsysResult-strong" style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Title</strong>
+                        <textarea className="SynopsysResult-textarea" style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTitle || ''} onChange={(e) => setEditableTitle(e.target.value)} />
                     </div>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Genre:</strong>
-                        <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableGenre || ''} onChange={(e) => setEditableGenre(e.target.value)} />
+                        <strong className="SynopsysResult-strong" style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Genre</strong>
+                        <textarea className="SynopsysResult-textarea" style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableGenre || ''} onChange={(e) => setEditableGenre(e.target.value)} />
                     </div>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Theme:</strong>
-                        <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTheme || ''} onChange={(e) => setEditableTheme(e.target.value)} />
+                        <strong className="SynopsysResult-strong" style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Theme</strong>
+                        <textarea className="SynopsysResult-textarea" style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTheme || ''} onChange={(e) => setEditableTheme(e.target.value)} />
                     </div>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Tone:</strong>
-                        <textarea style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTone || ''} onChange={(e) => setEditableTone(e.target.value)} />
+                        <strong className="SynopsysResult-strong" style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Tone</strong>
+                        <textarea className="SynopsysResult-textarea" style={{ fontFamily: font.nomalFont, height: "3vh" }} value={editableTone || ''} onChange={(e) => setEditableTone(e.target.value)} />
                     </div>
                     <div className="button-group first-page">
                         <button
@@ -92,7 +92,7 @@ const SynopsysResult = ({ onComplete }) => {
                             Invisible
                         </button>
                         <button
-                            style={{ fontFamily: font.shapeFont }}
+                            style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}
                             className="next-button"
                             onClick={handleNextPage}
                             onMouseEnter={(e) => {
@@ -116,8 +116,9 @@ const SynopsysResult = ({ onComplete }) => {
             {currentPage === 2 && (
                 <div className="SynopsysResult-letter animate-fade-in" style={{ width: "50vw" }}>
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.textColor }}>Setting:</strong>
+                        <strong className='SynopsysResult-strong' style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Setting</strong>
                         <textarea
+                            className='SynopsysResult-textarea'
                             style={{ fontFamily: font.nomalFont, height: "40vh" }}
                             value={editableSetting || ''}
                             onChange={(e) => setEditableSetting(e.target.value)}
@@ -125,7 +126,7 @@ const SynopsysResult = ({ onComplete }) => {
                     </div>
                     <div className="button-group">
                         <button
-                            style={{ fontFamily: font.shapeFont }}
+                            style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}
                             className="prev-button"
                             onClick={handlePrevPage}
                             onMouseEnter={(e) => {
@@ -144,7 +145,7 @@ const SynopsysResult = ({ onComplete }) => {
                             Previous
                         </button>
                         <button
-                            style={{ fontFamily: font.shapeFont }}
+                            style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}
                             className="next-button"
                             onClick={handleNextPage}
                             onMouseEnter={(e) => {
@@ -168,8 +169,9 @@ const SynopsysResult = ({ onComplete }) => {
             {currentPage === 3 && (
                 <div className="SynopsysResult-letter animate-fade-in">
                     <div className="editable-field">
-                        <strong style={{ fontFamily: font.shapeFont, color: Seasontheme.textColor }}>Characters:</strong>
+                        <strong className='SynopsysResult-strong' style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}>Characters</strong>
                         <textarea
+                            className='SynopsysResult-textarea'
                             style={{ fontFamily: font.nomalFont, height: "80vh" }}
                             value={editableCharacters.replace(/\.\.\./g, '\n\n') || ''}
                             onChange={(e) => setEditableCharacters(e.target.value)}
@@ -178,7 +180,7 @@ const SynopsysResult = ({ onComplete }) => {
                     </div>
                     <div className="button-group">
                         <button
-                            style={{ fontFamily: font.shapeFont }}
+                            style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}
                             className="prev-button"
                             onClick={handlePrevPage}
                             onMouseEnter={(e) => {
@@ -197,7 +199,7 @@ const SynopsysResult = ({ onComplete }) => {
                             Previous
                         </button>
                         <button
-                            style={{ fontFamily: font.shapeFont }}
+                            style={{ fontFamily: font.shapeFont, color: Seasontheme.blackColor }}
                             className="complete-button"
                             onClick={handleComplete}
                             onMouseEnter={(e) => {
