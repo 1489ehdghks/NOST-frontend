@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../../features/auth/LoginInstance';
 import { signup } from '../../features/auth/SignupInstance';
 import useGlobalStore from '../../shared/store/GlobalStore';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import Tooltip from '../tooltip/Tooltip';
 import ResendEmailModal from './ResendEmailModal';
 import 'react-toastify/dist/ReactToastify.css';
@@ -120,40 +120,94 @@ const LoginModal = ({ onClose }) => {
         event.preventDefault();
         setErrors({});
         setError(null);
-        setIsLoading(true)
+        setIsLoading(true);
 
         try {
             if (type === 'login') {
-                await login(inputs.loginEmail, inputs.loginPassword);
-                navigate('/');
-            } else {
+                const response = await login(inputs.loginEmail, inputs.loginPassword);
+
+                if (!response.success && response.errors?.errors?.detail) {
+                    const errorMessage = response.errors.errors.detail;
+
+                    // 단순화된 toast 호출
+                    toast.error(errorMessage);
+
+                    // 이메일 인증 필요한 경우
+                    if (errorMessage.includes('이메일 인증이 필요합니다')) {
+                        setShowResendEmailModal(true);
+                    }
+                } else if (response.success) {
+                    toast.success('로그인되었습니다!');
+                    navigate('/');
+                }
+
+
+            } else if (type === 'signup') {
                 if (inputs.signupPassword1 !== inputs.signupPassword2) {
-                    setErrors({ signupPassword2: 'Passwords do not match' });
-                    toast.error('Passwords do not match');
+                    toast.error('비밀번호가 일치하지 않습니다.');
+                    setIsLoading(false);
                     return;
                 }
-                const response = await signup(inputs.signupEmail, inputs.signupPassword1, inputs.signupPassword2, inputs.signupNickname);
-                if (response.errors) {
-                    setErrors(response.errors);
-                    Object.values(response.errors).flat().forEach(msg => toast.error(msg));
+
+                const response = await signup(
+                    inputs.signupEmail,
+                    inputs.signupPassword1,
+                    inputs.signupPassword2,
+                    inputs.signupNickname
+                );
+
+                if (!response.success) {
+                    // 에러 객체 처리
+                    console.log("response111", response)
+                    Object.entries(response.errors.errors).forEach(([field, message]) => {
+                        let displayMessage;
+
+                        switch (field) {
+                            case 'email':
+                                displayMessage = `이메일: ${message}`;
+                                break;
+                            case 'nickname':
+                                displayMessage = `닉네임: ${message}`;
+                                break;
+                            case 'password1':
+                                displayMessage = `비밀번호: ${message}`;
+                                break;
+                            case 'password2':
+                                displayMessage = `비밀번호 확인: ${message}`;
+                                break;
+                            default:
+                                displayMessage = message;
+                        }
+
+                        toast.error(displayMessage, {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                        });
+                    });
                 } else {
                     setSignupSuccess(true);
                     setLoginFormActive(true);
+                    toast.success('회원가입이 완료되었습니다. 이메일을 확인해주세요.', {
+                        position: "top-center",
+                        autoClose: 3000
+                    });
                 }
             }
         } catch (err) {
-            console.log("err:", err)
             console.error(type === 'login' ? 'Login error:' : 'Signup error:', err);
-            toast.error(`${err}`);
+            toast.error('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     };
 
 
     return (
         <div className="modalOverlay">
-            <ToastContainer />
             <div className="modalContent" onClick={(e) => e.stopPropagation()}>
                 <div className="user_options-container">
                     <div className={`user_options-text ${isLoginFormActive ? '' : 'slide-out'}`}>

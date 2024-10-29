@@ -10,6 +10,7 @@ import FallenLeaves from '../widgets/events/FallenLeaves';
 import Snow from '../widgets/events/FallenSnow';
 import useGlobalStore from '../shared/store/GlobalStore';
 import Loading from '../widgets/events/Loading';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   const { currentSeason, setSeason, setCanChangeTheme, canChangeTheme } = useThemeStore();
@@ -42,6 +43,18 @@ function App() {
 
   return (
     <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       {isLoading && <Loading />}
       <div className={`App ${currentSeason}`}>
         <div className="theme-toggles">
