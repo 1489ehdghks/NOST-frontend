@@ -10,6 +10,9 @@ import BookDetail from '../widgets/book/BookDetail';
 import SideLayout from '../widgets/layout/sideLayout/SideLayout';
 import SettingsPage from '../pages/settings/SettingsPage';
 import useAuthStore from '../shared/store/AuthStore';
+import EmailConfirmation from 'pages/auth/EmailConfirmation';
+import EmailConfirmedSuccess from 'pages/auth/EmailConfirmedSuccess';
+import EmailConfirmationError from 'pages/auth/EmailConfirmationError';
 import NotFound from '../pages/NotFound';
 
 const AppRouter = () => {
@@ -45,6 +48,9 @@ const AppRouter = () => {
             <Route path="/mybooklist" element={isLoggedIn ? <SideLayout><Mybooklist /></SideLayout> : <Navigate to="/" />} />
             <Route path="/book/:id" element={isLoggedIn ? <SideLayout><BookDetail /></SideLayout> : <Navigate to="/" />} />
             <Route path="/settings" element={isLoggedIn ? <SideLayout><SettingsPage /></SideLayout> : <Navigate to="/" />} />
+            <Route path="/confirm-email/:key" element={<EmailConfirmation />} />
+            <Route path="/email-confirmed" element={<EmailConfirmedSuccess />} />
+            <Route path="/email-confirmation-error" element={<EmailConfirmationError />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

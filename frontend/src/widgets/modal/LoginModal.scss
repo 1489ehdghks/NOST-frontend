@@ -1,5 +1,6 @@
 .modalOverlay {
   position: fixed;
+  overflow: hidden;
   top: 0;
   left: 0;
   width: 100vw;
@@ -44,7 +45,7 @@
 
     // 1200px 이하
     @media (max-width: 1200px) {
-      width: 600px;
+      width: 610px;
       height: 200px;
     }
     // 768px 이하

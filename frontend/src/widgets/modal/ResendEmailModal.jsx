@@ -1,72 +1,124 @@
 import React, { useState } from 'react';
+import { Send, X, CheckCircle, AlertCircle, Mail } from 'lucide-react';
+import './ResendEmailModal.scss';
+import { toast } from 'react-toastify';
 import axiosInstance from '../../shared/utils/AxiosInstance';
 import useThemeStore from '../../shared/store/Themestore';
-import './ResendEmailModal.scss';
-import { ToastContainer, toast } from 'react-toastify';
 
-const ResendEmailModal = () => {
+const ResendEmailModal = ({ onClose, email = '' }) => {
     const { themes, currentSeason } = useThemeStore();
     const currentTheme = themes[currentSeason];
-    const [email, setEmail] = useState('');
-    const [showModal, setShowModal] = useState(false);
+    const [emailInput, setEmailInput] = useState(email);
     const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState('');
+    const [status, setStatus] = useState('idle');
 
     const handleEmailChange = (event) => {
-        setEmail(event.target.value);
+        setEmailInput(event.target.value);
+        setStatus('idle');
     };
 
     const handleResendEmail = async () => {
+        if (!emailInput) {
+            toast.error('Please enter your email address');
+            return;
+        }
+
         setIsLoading(true);
-        setErrorMessage('');
+        setStatus('loading');
+
         try {
-            const response = await axiosInstance.post('/api/accounts/resend-email/', { email });
-            console.log("이메일 재전송 성공:", response.data);
+            await axiosInstance.post('/api/accounts/resend-email/', {
+                email: emailInput
+            });
+
+            setStatus('success');
             toast.success('Verification email sent successfully!');
-            setShowModal(false);
+            setTimeout(() => onClose(), 2000);
         } catch (error) {
-            console.error("이메일 재전송 에러:", error);
-            setErrorMessage('Failed to resend email. Please try again.');
-            toast.error('Failed to resend email. Please try again.');
+            setStatus('error');
+            toast.error(error.response?.data?.message || 'Failed to resend email');
         } finally {
             setIsLoading(false);
         }
     };
 
-    const handleResend = () => {
-        handleResendEmail();
-    };
-
     return (
-        <div>
-            <ToastContainer />
-            <button className='ResendEmailModalButton' onClick={() => setShowModal(true)}>이메일 재전송</button>
-            {showModal && (
-                <div className="modal">
-                    <div className="modal-content">
-                        <span className="close" onClick={() => setShowModal(false)}>
-                            &times;
-                        </span>
-                        <h1>Resend Verification Email</h1>
+        <div className="resend-email-modal-overlay" onClick={onClose}>
+            <div
+                className="resend-email-modal"
+                onClick={e => e.stopPropagation()}
+            >
+                <div
+                    className="modal-header"
+                    style={{
+                        background: `linear-gradient(to right, ${currentTheme.buttonBackgroundColor}, ${currentTheme.sidebarBg})`
+                    }}
+                >
+                    <Mail className="header-icon" size={28} />
+                    <button className="close-button" onClick={onClose}>
+                        <X size={24} />
+                    </button>
+                </div>
+
+                <div className="modal-content">
+                    <h2 style={{ color: currentTheme.defaultTextColor }}>
+                        Resend Verification Email
+                    </h2>
+                    <p className="subtitle" style={{ color: currentTheme.defaultTextColor + '99' }}>
+                        Enter your email address to receive a new link
+                    </p>
+
+                    <div className="input-group">
                         <input
                             type="email"
-                            placeholder="Enter your email"
-                            value={email}
+                            placeholder="Enter your email address"
+                            value={emailInput}
                             onChange={handleEmailChange}
-                            disabled={isLoading}
+                            disabled={isLoading || status === 'success'}
+                            style={{
+                                borderColor: currentTheme.defaultTextColor + '20',
+                                color: currentTheme.defaultTextColor
+                            }}
                         />
-                        {errorMessage && <p className="error-message">{errorMessage}</p>}
-                        <p>이메일을 재전송하시겠습니까?</p>
+
                         <button
-                            style={{ backgroundColor: currentTheme.buttonBackgroundColor, color: currentTheme.buttonTextColor }}
-                            onClick={handleResend}
-                            disabled={isLoading}
+                            className={`send-button ${status}`}
+                            onClick={handleResendEmail}
+                            disabled={isLoading || status === 'success'}
+                            style={{
+                                backgroundColor: status === 'idle' ? currentTheme.buttonBackgroundColor : undefined,
+                                color: status === 'idle' ? currentTheme.buttonTextColor : undefined
+                            }}
                         >
-                            {isLoading ? '재전송 중...' : '재전송'}
+                            {status === 'idle' && (
+                                <>
+                                    <Send size={18} /> Send
+                                </>
+                            )}
+                            {status === 'loading' && (
+                                <div className="loading-spinner" />
+                            )}
+                            {status === 'success' && (
+                                <>
+                                    <CheckCircle size={18} /> Sent
+                                </>
+                            )}
+                            {status === 'error' && (
+                                <>
+                                    <AlertCircle size={18} /> Retry
+                                </>
+                            )}
                         </button>
                     </div>
+
+                    {status === 'success' && (
+                        <div className="success-message">
+                            <CheckCircle className="success-icon" size={20} />
+                            <p>Email sent! Please check your inbox.</p>
+                        </div>
+                    )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };

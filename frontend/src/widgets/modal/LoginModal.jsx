@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { login } from '../../features/auth/LoginInstance';
 import { signup } from '../../features/auth/SignupInstance';
 import useGlobalStore from '../../shared/store/GlobalStore';
@@ -21,10 +21,11 @@ const LoginModal = ({ onClose }) => {
         signupPassword2: ''
     });
     const [errors, setErrors] = useState({});
-    const { isLoading, setIsLoading, error, setError } = useGlobalStore(state => state);
+    const { isLoading, setIsLoading, error, setError } = useGlobalStore();
     const [signupSuccess, setSignupSuccess] = useState(false);
     const navigate = useNavigate();
     const [showResendEmailModal, setShowResendEmailModal] = useState(false);
+    const [unverifiedEmail, setUnverifiedEmail] = useState('');
     const [tooltip, setTooltip] = useState({
         loginEmail: false,
         loginPassword: false,
@@ -39,7 +40,13 @@ const LoginModal = ({ onClose }) => {
         signupPassword: false,
         signupPassword2: false
     });
-
+    const [passwordConditions, setPasswordConditions] = useState({
+        length: false,
+        lowercase: false,
+        uppercase: false,
+        number: false,
+        special: false
+    });
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -52,20 +59,6 @@ const LoginModal = ({ onClose }) => {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [onClose]);
 
-    useEffect(() => {
-        if (signupSuccess) {
-            toast.success("An email verification has been sent to you, please check it.");
-        }
-    }, [signupSuccess]);
-
-    useEffect(() => {
-        if (typeof error === 'string' && error.includes('Email is not verified.')) {
-            setShowResendEmailModal(true);
-        }
-    }, [error]);
-
-
-
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setInputs({ ...inputs, [name]: value });
@@ -74,11 +67,9 @@ const LoginModal = ({ onClose }) => {
 
     const validateInput = (name, value) => {
         let isValid = false;
-        let message = '';
 
         if (name === 'loginEmail' || name === 'signupEmail') {
             isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-            message = "Please provide a valid email address.";
         } else if (name === 'loginPassword' || name === 'signupPassword1') {
             const conditions = {
                 length: value.length >= 8,
@@ -88,31 +79,25 @@ const LoginModal = ({ onClose }) => {
                 special: /[!@#$%^&*(),.?":{}|<>]/.test(value)
             };
 
-            const satisfiedConditions = [
-                conditions.lowercase,
-                conditions.uppercase,
-                conditions.number,
-                conditions.special
-            ].filter(Boolean).length;
-
-            isValid = conditions.length && satisfiedConditions >= 2;
-
-            if (!isValid) {
-                message = conditions.length ?
-                    "Password must contain at least 2: lowercase, uppercase, numbers, or special characters" :
-                    "Password must be at least 8 characters long";
-            }
+            const satisfiedCount = Object.values(conditions).filter(Boolean).length;
+            isValid = conditions.length && satisfiedCount >= 3;
+            setPasswordConditions(conditions);
         } else if (name === 'signupPassword2') {
             isValid = value === inputs.signupPassword1;
-            message = "Passwords must match";
         }
 
         setInputValidities(prev => ({ ...prev, [name]: isValid }));
-        setTooltip(prev => ({
-            ...prev,
-            [name]: true,
-            message: isValid ? "Valid" : message
-        }));
+    };
+
+    const handleEmailVerificationError = (email) => {
+        setUnverifiedEmail(email);
+        setShowResendEmailModal(true);
+        toast.dismiss();
+        toast.error('이메일 인증이 필요합니다. 인증 메일을 확인해주세요.', {
+            position: "top-center",
+            autoClose: 5000,
+            toastId: 'email-verification-error',
+        });
     };
 
 
@@ -121,30 +106,60 @@ const LoginModal = ({ onClose }) => {
         setErrors({});
         setError(null);
         setIsLoading(true);
-
+        toast.dismiss();
         try {
             if (type === 'login') {
                 const response = await login(inputs.loginEmail, inputs.loginPassword);
+                console.log("Login response:", response);
 
-                if (!response.success && response.errors?.errors?.detail) {
-                    const errorMessage = response.errors.errors.detail;
+                if (!response.success) {
+                    const errorDetail = response.errors?.errors?.detail || '';
 
-                    // 단순화된 toast 호출
-                    toast.error(errorMessage);
-
-                    // 이메일 인증 필요한 경우
-                    if (errorMessage.includes('이메일 인증이 필요합니다')) {
-                        setShowResendEmailModal(true);
+                    // 이메일 인증 필요
+                    if (errorDetail.includes('이메일 인증이 필요합니다')) {
+                        handleEmailVerificationError(inputs.loginEmail);
+                        return;
                     }
-                } else if (response.success) {
-                    toast.success('로그인되었습니다!');
+
+                    // 등록되지 않은 이메일
+                    if (errorDetail.includes('등록되지 않은 이메일')) {
+                        toast.error('등록되지 않은 이메일입니다. 회원가입을 진행해주세요.', {
+                            position: "top-center",
+                            autoClose: 5000,
+                            toastId: 'unregistered-email'
+                        });
+                        return;
+                    }
+
+                    // 비밀번호 불일치
+                    if (errorDetail.includes('이메일 또는 비밀번호가 올바르지 않습니다')) {
+                        toast.error('이메일 또는 비밀번호가 올바르지 않습니다.', {
+                            position: "top-center",
+                            autoClose: 5000,
+                            toastId: 'invalid-credentials'
+                        });
+                        return;
+                    }
+
+                    // 기본 에러 메시지
+                    toast.error(errorDetail || '로그인 중 오류가 발생했습니다.', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        toastId: 'login-error'
+                    });
+                } else {
+                    toast.success('로그인되었습니다!', {
+                        toastId: 'login-success'
+                    });
                     navigate('/');
                 }
-
-
             } else if (type === 'signup') {
                 if (inputs.signupPassword1 !== inputs.signupPassword2) {
-                    toast.error('비밀번호가 일치하지 않습니다.');
+                    toast.error('비밀번호가 일치하지 않습니다.', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        toastId: 'password-mismatch'
+                    });
                     setIsLoading(false);
                     return;
                 }
@@ -157,35 +172,59 @@ const LoginModal = ({ onClose }) => {
                 );
 
                 if (!response.success) {
-                    // 에러 객체 처리
-                    console.log("response111", response)
-                    Object.entries(response.errors.errors).forEach(([field, message]) => {
+                    // 에러 응답 구조 처리 개선
+                    const errors = response.errors?.errors || response.errors || {};
+
+                    Object.entries(errors).forEach(([field, message]) => {
+                        // 메시지가 배열인 경우 처리
+                        const errorMessage = Array.isArray(message) ? message[0] : message;
                         let displayMessage;
 
-                        switch (field) {
-                            case 'email':
-                                displayMessage = `이메일: ${message}`;
-                                break;
-                            case 'nickname':
-                                displayMessage = `닉네임: ${message}`;
-                                break;
-                            case 'password1':
-                                displayMessage = `비밀번호: ${message}`;
-                                break;
-                            case 'password2':
-                                displayMessage = `비밀번호 확인: ${message}`;
-                                break;
-                            default:
-                                displayMessage = message;
+                        // field가 비어있는 경우 처리
+                        if (errorMessage === "This field may not be blank.") {
+                            switch (field) {
+                                case 'email':
+                                    displayMessage = '이메일을 입력해주세요.';
+                                    break;
+                                case 'nickname':
+                                    displayMessage = '닉네임을 입력해주세요.';
+                                    break;
+                                case 'password1':
+                                    displayMessage = '비밀번호를 입력해주세요.';
+                                    break;
+                                case 'password2':
+                                    displayMessage = '비밀번호 확인을 입력해주세요.';
+                                    break;
+                                default:
+                                    displayMessage = '필수 항목을 입력해주세요.';
+                            }
+                        } else {
+                            switch (field) {
+                                case 'email':
+                                    displayMessage = `이메일: ${errorMessage.includes('already exists') ?
+                                        '이미 등록된 이메일입니다.' : errorMessage
+                                        }`;
+                                    break;
+                                case 'nickname':
+                                    displayMessage = `닉네임: ${errorMessage.includes('already exists') ?
+                                        '이미 사용 중인 닉네임입니다.' : errorMessage
+                                        }`;
+                                    break;
+                                case 'password1':
+                                    displayMessage = `비밀번호: ${errorMessage}`;
+                                    break;
+                                case 'password2':
+                                    displayMessage = `비밀번호 확인: ${errorMessage}`;
+                                    break;
+                                default:
+                                    displayMessage = errorMessage;
+                            }
                         }
 
                         toast.error(displayMessage, {
-                            position: "top-right",
+                            position: "top-center",
                             autoClose: 5000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
+                            toastId: `signup-error-${field}`
                         });
                     });
                 } else {
@@ -193,13 +232,24 @@ const LoginModal = ({ onClose }) => {
                     setLoginFormActive(true);
                     toast.success('회원가입이 완료되었습니다. 이메일을 확인해주세요.', {
                         position: "top-center",
-                        autoClose: 3000
+                        autoClose: 3000,
+                        toastId: 'signup-success'
                     });
+                    setInputs(prevInputs => ({
+                        ...prevInputs,
+                        signupNickname: '',
+                        signupEmail: '',
+                        signupPassword1: '',
+                        signupPassword2: ''
+                    }));
                 }
             }
         } catch (err) {
-            console.error(type === 'login' ? 'Login error:' : 'Signup error:', err);
-            toast.error('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            console.error('Error:', err);
+            toast.error('서버와의 통신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {
+                position: "top-center",
+                autoClose: 5000
+            });
         } finally {
             setIsLoading(false);
         }
@@ -207,7 +257,7 @@ const LoginModal = ({ onClose }) => {
 
 
     return (
-        <div className="modalOverlay">
+        <div className="modalOverlay" >
             <div className="modalContent" onClick={(e) => e.stopPropagation()}>
                 <div className="user_options-container">
                     <div className={`user_options-text ${isLoginFormActive ? '' : 'slide-out'}`}>
@@ -264,7 +314,6 @@ const LoginModal = ({ onClose }) => {
 
                                 </div>
                             </fieldset>
-                            <div>{showResendEmailModal && <ResendEmailModal onClose={() => setShowResendEmailModal(false)} />}</div>
                             <div className="forms_buttons">
                                 <button type="button" className="forms_buttons-forgot" disabled={isLoading}>Forgot password?</button>
                                 <input type="submit" value="Log In" className="forms_buttons-action" disabled={isLoading} />
@@ -299,13 +348,23 @@ const LoginModal = ({ onClose }) => {
                                         onChange={handleInputChange}
                                         onFocus={() => setTooltip({ ...tooltip, signupEmail: true })}
                                         onBlur={() => setTooltip({ ...tooltip, signupEmail: false })}
-                                        autoComplete="off"
                                         disabled={isLoading}
+                                        autoComplete="off"
                                     />
                                     <Tooltip
-                                        message="Please provide a valid email address for verification."
+                                        title="Email"
+                                        requiredCount={1}
+                                        conditions={[
+                                            {
+                                                label: "이메일 포함",
+                                                isValid: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(inputs.signupEmail)
+                                            },
+                                            {
+                                                label: "!메일을 받을 수 있는 이메일",
+                                                notice: true
+                                            }
+                                        ]}
                                         isVisible={tooltip.signupEmail}
-                                        isValid={inputValidities.signupEmail}
                                         onClose={() => setTooltip({ ...tooltip, signupEmail: false })}
                                     />
                                 </div>
@@ -320,13 +379,39 @@ const LoginModal = ({ onClose }) => {
                                         onChange={handleInputChange}
                                         onFocus={() => setTooltip({ ...tooltip, signupPassword: true })}
                                         onBlur={() => setTooltip({ ...tooltip, signupPassword: false })}
-                                        autoComplete="new-password"
                                         disabled={isLoading}
+                                        autoComplete="new-password"
                                     />
                                     <Tooltip
-                                        message="Password must be at least 8 characters long and contain a mix of letters and numbers."
+                                        title="Password"
+                                        requiredCount={3}
+                                        conditions={[
+                                            {
+                                                label: "최소 8자 이상",
+                                                isValid: passwordConditions.length
+                                            },
+                                            {
+                                                label: "소문자 포함",
+                                                isValid: passwordConditions.lowercase
+                                            },
+                                            {
+                                                label: "대문자 포함",
+                                                isValid: passwordConditions.uppercase
+                                            },
+                                            {
+                                                label: "숫자 포함",
+                                                isValid: passwordConditions.number
+                                            },
+                                            {
+                                                label: "특수문자 포함",
+                                                isValid: passwordConditions.special
+                                            },
+                                            {
+                                                label: "!간단한 비밀번호는 사용이 안될 수도 있습니다",
+                                                notice: true
+                                            }
+                                        ]}
                                         isVisible={tooltip.signupPassword}
-                                        isValid={inputValidities.signupPassword}
                                         onClose={() => setTooltip({ ...tooltip, signupPassword: false })}
                                     />
                                 </div>
@@ -345,9 +430,16 @@ const LoginModal = ({ onClose }) => {
                                         disabled={isLoading}
                                     />
                                     <Tooltip
-                                        message="Passwords must match."
+                                        title="Confirm Password"
+                                        requiredCount={1}
+                                        conditions={[
+                                            {
+                                                label: "비밀번호와 같음",
+                                                isValid: inputs.signupPassword2 === inputs.signupPassword1
+                                                    && inputs.signupPassword2.length > 0
+                                            }
+                                        ]}
                                         isVisible={tooltip.signupPassword2}
-                                        isValid={inputValidities.signupPassword2}
                                         onClose={() => setTooltip({ ...tooltip, signupPassword2: false })}
                                     />
                                 </div>
@@ -358,6 +450,15 @@ const LoginModal = ({ onClose }) => {
                         </form>
                     </div>
                 </div>
+                {showResendEmailModal && (
+                    <ResendEmailModal
+                        onClose={() => {
+                            setShowResendEmailModal(false);
+                            setUnverifiedEmail('');
+                        }}
+                        email={unverifiedEmail}
+                    />
+                )}
             </div>
         </div>
     );

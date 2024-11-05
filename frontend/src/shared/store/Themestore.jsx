@@ -98,7 +98,7 @@ const useThemeStore = create((setState, getState) => ({
             background: winter,
             lowBackground: winterLow,
             cardbackground: winterCard,
-            defaultTextColor: '#ffffff',
+            defaultTextColor: '#DCDCDC',
             themeTextColor: '#ffffff',
             blackColor: '#000000',
             homepageBackgroundColor: '#000000',
